@@ -1,0 +1,40 @@
+{
+    "version": 1,
+    "schedule": {
+        "type": "simple",
+        "interval": "1s"
+    },
+    "workflow": {
+        "collect": {
+            "metrics": {
+                "/intel/elasticsearch/node/osxxCESUSO6wLo7_uNDfqg/timestamp": {},
+		        "/intel/elasticsearch/node/osxxCESUSO6wLo7_uNDfqg/host": {},
+                "/intel/elasticsearch/node/osxxCESUSO6wLo7_uNDfqg/indices/merges/total_throttled_time_in_millis": {},
+                "/intel/elasticsearch/node/osxxCESUSO6wLo7_uNDfqg/jvm/classes/total_loaded_count": {},
+                "/intel/elasticsearch/node/osxxCESUSO6wLo7_uNDfqg/jvm/mem/heap_max_in_bytes": {}
+            },
+            "config": {
+                "/intel/mock": {
+                    "password": "secret",
+                    "user": "root"
+                }
+            },
+            "process": [
+                {
+                    "plugin_name": "passthru",
+                    "process": null,
+                    "publish": [
+                        {                         
+                            "plugin_name": "file",
+                            "config": {
+                                "file": "/tmp/published_elasticsearch"
+                            }
+                        }
+                    ],
+                    "config": null
+                }
+            ],
+            "publish": null
+        }
+    }
+}
