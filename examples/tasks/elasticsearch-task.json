@@ -7,18 +7,14 @@
     "workflow": {
         "collect": {
             "metrics": {
-                "/intel/elasticsearch/node/osxxCESUSO6wLo7_uNDfqg/timestamp": {},
-		        "/intel/elasticsearch/node/osxxCESUSO6wLo7_uNDfqg/host": {},
-                "/intel/elasticsearch/node/osxxCESUSO6wLo7_uNDfqg/indices/merges/total_throttled_time_in_millis": {},
-                "/intel/elasticsearch/node/osxxCESUSO6wLo7_uNDfqg/jvm/classes/total_loaded_count": {},
-                "/intel/elasticsearch/node/osxxCESUSO6wLo7_uNDfqg/jvm/mem/heap_max_in_bytes": {}
+                "/intel/elasticsearch/node/*/timestamp": {},
+		        "/intel/elasticsearch/node/*/host": {},
+                "/intel/elasticsearch/node/*/indices/merges/total_throttled_time_in_millis": {},
+                "/intel/elasticsearch/node/*/jvm/classes/total_loaded_count": {},
+                "/intel/elasticsearch/node/*/os/mem/total_in_bytes": {},
+                "/intel/elasticsearch/cluster/status": {}
             },
-            "config": {
-                "/intel/mock": {
-                    "password": "secret",
-                    "user": "root"
-                }
-            },
+            "config": {},
             "process": [
                 {
                     "plugin_name": "passthru",
