@@ -22,43 +22,58 @@ limitations under the License.
 package elasticsearch
 
 import (
-	"os"
 	"testing"
 
 	"github.com/intelsdi-x/snap/control/plugin"
+	"github.com/intelsdi-x/snap/core/cdata"
 	"github.com/intelsdi-x/snap/core/ctypes"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestESCollectMetrics(t *testing.T) {
-	config := make(map[string]ctypes.ConfigValue)
+	cfg := setupCfg("192.168.99.100", 9200)
 
 	Convey("Elasticsearch collector", t, func() {
-		config["host"] = ctypes.ConfigValueStr{Value: os.Getenv("SNAP_ES_HOST")}
-		config["port"] = ctypes.ConfigValueInt{Value: 9200}
-
 		p := NewElasticsearchCollector()
+		p.GetMetricTypes(cfg)
+
 		Convey("collect metrics", func() {
 			mts := []plugin.PluginMetricType{
 				plugin.PluginMetricType{
 					Namespace_: []string{
-						"intel", "elasticsearch", "node", "wmya7Qp9S7OWtKugsX55IQ",
-						"thread_pool", "force_merge", "completed"},
+						"intel", "elasticsearch", "node", "JWSiB4YtQF64iKavAkg_fQ",
+						"jvm", "buffer_pools", "direct", "total_capacity_in_bytes"},
+					Config_: cfg.ConfigDataNode,
 				},
 				plugin.PluginMetricType{
 					Namespace_: []string{
-						"intel", "elasticsearch", "node", "wmya7Qp9S7OWtKugsX55IQ",
-						"indices", "docs", "count"},
+						"intel", "elasticsearch", "node", "JWSiB4YtQF64iKavAkg_fQ",
+						"process", "cpu", "total_in_millis"},
+					Config_: cfg.ConfigDataNode,
 				},
 				plugin.PluginMetricType{
 					Namespace_: []string{
-						"intel", "elasticsearch", "node", "wmya7Qp9S7OWtKugsX55IQ",
+						"intel", "elasticsearch", "node", "JWSiB4YtQF64iKavAkg_fQ",
 						"jvm", "mem", "heap_max_in_bytes"},
+					Config_: cfg.ConfigDataNode,
 				},
 				plugin.PluginMetricType{
 					Namespace_: []string{
-						"intel", "elasticsearch", "node", "wmya7Qp9S7OWtKugsX55IQ",
+						"intel", "elasticsearch", "node", "JWSiB4YtQF64iKavAkg_fQ",
 						"os", "mem", "free_percent"},
+					Config_: cfg.ConfigDataNode,
+				},
+				plugin.PluginMetricType{
+					Namespace_: []string{
+						"intel", "elasticsearch", "node", "*",
+						"thread_pool", "management", "completed"},
+					Config_: cfg.ConfigDataNode,
+				},
+				plugin.PluginMetricType{
+					Namespace_: []string{
+						"intel", "elasticsearch", "cluster",
+						"status"},
+					Config_: cfg.ConfigDataNode,
 				},
 			}
 			metrics, err := p.CollectMetrics(mts)
@@ -66,4 +81,11 @@ func TestESCollectMetrics(t *testing.T) {
 			So(metrics, ShouldNotBeNil)
 		})
 	})
+}
+
+func setupCfg(server string, port int) plugin.PluginConfigType {
+	node := cdata.NewNode()
+	node.AddItem("server", ctypes.ConfigValueStr{Value: server})
+	node.AddItem("port", ctypes.ConfigValueInt{Value: port})
+	return plugin.PluginConfigType{ConfigDataNode: node}
 }

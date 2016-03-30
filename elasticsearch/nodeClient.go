@@ -27,11 +27,11 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/intelsdi-x/snap/control/plugin"
+	"github.com/intelsdi-x/snap/core"
 )
 
 var (
-	nsArray    = []plugin.PluginMetricType{}
-	mtsMap     = map[string][]plugin.PluginMetricType{}
+	mtsMap     = map[string]map[string]plugin.PluginMetricType{}
 	treeMap    = map[string]int{}
 	fieldCount int
 
@@ -62,7 +62,7 @@ func NewESNodeMetric(url string, timeout time.Duration) ESMetric {
 
 // GetNodeData returns an array of elasticsearch node metrics.
 // All metrics of all nodes within the same cluster will be returned.
-func (esm *ESMetric) GetNodeData() ([]plugin.PluginMetricType, error) {
+func (esm *ESMetric) GetNodeData() (map[string]map[string]plugin.PluginMetricType, error) {
 	resp, err := esm.client.httpClient.Get(esm.client.GetUrl())
 	if err != nil {
 		esLog.WithFields(log.Fields{
@@ -106,7 +106,8 @@ func (esm *ESMetric) GetNodeData() ([]plugin.PluginMetricType, error) {
 		err = esm.parseData(reflect.ValueOf(node), nsStack)
 		esm.setESNodeMetrics()
 	}
-	return getMts(), err
+
+	return mtsMap, err
 }
 
 // parseData parses elasticsearch metric data into snap complaint metric type
@@ -170,35 +171,23 @@ func (esm *ESMetric) parseData(obj reflect.Value, nsStack *stack) error {
 }
 
 func (esm *ESMetric) setESNodeMetrics() {
-	mts := []plugin.PluginMetricType{}
-
+	mts := map[string]plugin.PluginMetricType{}
 	for n, m := range esm.dataMap {
-		mts = append(mts, plugin.PluginMetricType{
+		dpt := plugin.PluginMetricType{
 			Namespace_: strings.Split(n, "/"),
 			Data_:      m,
 			Source_:    esm.host,
+			Labels_: []core.Label{
+				{
+					Index: 3,
+					Name:  esm.id,
+				},
+			},
 			Timestamp_: time.Unix(esm.timestamp, 0),
-		})
-
-		nsArray = append(nsArray, plugin.PluginMetricType{
-			Namespace_: strings.Split(n, "/"),
-		})
+		}
+		mts[n] = dpt
 	}
 	mtsMap[esm.id] = mts
-}
-
-// getESNodeMetricType returns a slice of metric namespaces
-func getESNodeMetricTypes() []plugin.PluginMetricType {
-	return nsArray
-}
-
-// getMts returns all metrics for all nodes
-func getMts() []plugin.PluginMetricType {
-	mts := []plugin.PluginMetricType{}
-	for _, m := range mtsMap {
-		mts = append(mts, m...)
-	}
-	return mts
 }
 
 func cleanStack(nsStack *stack) error {

@@ -65,8 +65,8 @@ func NewESClusterMetric(url string, timeout time.Duration) ESMetric {
 
 // GetClusterData collects the ES cluster metrics. Otherwise,
 // an error is returned.
-func (esm *ESMetric) GetClusterData() ([]plugin.PluginMetricType, error) {
-	mts := []plugin.PluginMetricType{}
+func (esm *ESMetric) GetClusterData() (map[string]plugin.PluginMetricType, error) {
+	mts := map[string]plugin.PluginMetricType{}
 	host, _ := os.Hostname()
 
 	resp, err := esm.client.httpClient.Get(esm.client.GetUrl())
@@ -93,20 +93,13 @@ func (esm *ESMetric) GetClusterData() ([]plugin.PluginMetricType, error) {
 	for i := 0; i < elem.NumField(); i++ {
 		ns := strings.Split(clusterNsPrefix, "/")
 		ns = append(ns, elem.Type().Field(i).Tag.Get("json"))
-		namespaces = append(namespaces, plugin.PluginMetricType{
-			Namespace_: ns,
-		})
 
-		mts = append(mts, plugin.PluginMetricType{
+		mts[strings.Join(ns, "/")] = plugin.PluginMetricType{
 			Namespace_: ns,
 			Data_:      elem.Field(i).Interface(),
 			Source_:    host,
 			Timestamp_: time.Now(),
-		})
+		}
 	}
 	return mts, nil
-}
-
-func getESClusterMetricType() []plugin.PluginMetricType {
-	return namespaces
 }

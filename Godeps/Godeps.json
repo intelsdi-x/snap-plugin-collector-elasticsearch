@@ -1,5 +1,112 @@
 {
 	"ImportPath": "github.com/intelsdi-x/snap-plugin-collector-elasticsearch",
 	"GoVersion": "go1.5",
-	"Deps": []
+	"GodepVersion": "v60",
+	"Deps": [
+		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.8.7-55-gf7f79f7",
+			"Rev": "f7f79f729e0fbe2fcc061db48a9ba0263f588252"
+		},
+		{
+			"ImportPath": "github.com/gopherjs/gopherjs/js",
+			"Rev": "4b53e1bddba0e2f734514aeb6c02db652f4c6fe8"
+		},
+		{
+			"ImportPath": "github.com/intelsdi-x/snap-plugin-utilities/config",
+			"Rev": "2087427568db000e4e36f05af75e3f8ace06d12b"
+		},
+		{
+			"ImportPath": "github.com/intelsdi-x/snap/control/plugin",
+			"Comment": "v0.11.0-beta",
+			"Rev": "42d9567651258bba268d94701eb171458e459645"
+		},
+		{
+			"ImportPath": "github.com/intelsdi-x/snap/control/plugin/cpolicy",
+			"Comment": "v0.11.0-beta",
+			"Rev": "42d9567651258bba268d94701eb171458e459645"
+		},
+		{
+			"ImportPath": "github.com/intelsdi-x/snap/control/plugin/encoding",
+			"Comment": "v0.11.0-beta",
+			"Rev": "42d9567651258bba268d94701eb171458e459645"
+		},
+		{
+			"ImportPath": "github.com/intelsdi-x/snap/control/plugin/encrypter",
+			"Comment": "v0.11.0-beta",
+			"Rev": "42d9567651258bba268d94701eb171458e459645"
+		},
+		{
+			"ImportPath": "github.com/intelsdi-x/snap/core",
+			"Comment": "v0.11.0-beta",
+			"Rev": "42d9567651258bba268d94701eb171458e459645"
+		},
+		{
+			"ImportPath": "github.com/intelsdi-x/snap/core/cdata",
+			"Comment": "v0.11.0-beta",
+			"Rev": "42d9567651258bba268d94701eb171458e459645"
+		},
+		{
+			"ImportPath": "github.com/intelsdi-x/snap/core/ctypes",
+			"Comment": "v0.11.0-beta",
+			"Rev": "42d9567651258bba268d94701eb171458e459645"
+		},
+		{
+			"ImportPath": "github.com/intelsdi-x/snap/core/serror",
+			"Comment": "v0.11.0-beta",
+			"Rev": "42d9567651258bba268d94701eb171458e459645"
+		},
+		{
+			"ImportPath": "github.com/intelsdi-x/snap/pkg/ctree",
+			"Comment": "v0.11.0-beta",
+			"Rev": "42d9567651258bba268d94701eb171458e459645"
+		},
+		{
+			"ImportPath": "github.com/intelsdi-x/snap/pkg/schedule",
+			"Comment": "v0.11.0-beta",
+			"Rev": "42d9567651258bba268d94701eb171458e459645"
+		},
+		{
+			"ImportPath": "github.com/intelsdi-x/snap/scheduler/wmap",
+			"Comment": "v0.11.0-beta",
+			"Rev": "42d9567651258bba268d94701eb171458e459645"
+		},
+		{
+			"ImportPath": "github.com/jtolds/gls",
+			"Rev": "8ddce2a84170772b95dd5d576c48d517b22cac63"
+		},
+		{
+			"ImportPath": "github.com/smartystreets/assertions",
+			"Comment": "1.5.0-409-g5de9043",
+			"Rev": "5de9043ec1a39cc97edc838ef7236538a55b30a4"
+		},
+		{
+			"ImportPath": "github.com/smartystreets/assertions/internal/oglematchers",
+			"Comment": "1.5.0-409-g5de9043",
+			"Rev": "5de9043ec1a39cc97edc838ef7236538a55b30a4"
+		},
+		{
+			"ImportPath": "github.com/smartystreets/goconvey/convey",
+			"Comment": "1.6.0-10-g995f5b2",
+			"Rev": "995f5b2e021c69b8b028ba6d0b05c1dd500783db"
+		},
+		{
+			"ImportPath": "github.com/smartystreets/goconvey/convey/gotest",
+			"Comment": "1.6.0-10-g995f5b2",
+			"Rev": "995f5b2e021c69b8b028ba6d0b05c1dd500783db"
+		},
+		{
+			"ImportPath": "github.com/smartystreets/goconvey/convey/reporting",
+			"Comment": "1.6.0-10-g995f5b2",
+			"Rev": "995f5b2e021c69b8b028ba6d0b05c1dd500783db"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "320cb01ddbbf0473674c2585f9b6e245721de355"
+		},
+		{
+			"ImportPath": "gopkg.in/yaml.v2",
+			"Rev": "f7716cbe52baa25d2e9b0d0da546fcf909fc16b4"
+		}
+	]
 }

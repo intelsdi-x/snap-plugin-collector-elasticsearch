@@ -19,7 +19,7 @@ limitations under the License.
 
 # snap collector plugin - Elasticsearch
 
-This plugin collects Elasticsearch cluster and nodes statistics using snap telemetry engine.
+This plugin collects Elasticsearch cluster and nodes statistics using snap telemetry framework.
 
 The intention for this plugin is to collect metrics for Elasticsearch nodes and cluster health.
 
@@ -30,7 +30,7 @@ This plugin is used in the [snap framework] (http://github.com/intelsdi-x/snap).
   * [System Requirements](#system-requirements)
   * [Operating systems](#openrating-systems)
   * [Installation](#installation)
-  * [Configuration and Usage](#configuration-and-usage)
+   * [Configuration and Usage](#configuration-and-usage)
 2. [Documentation](#documentation)
   * [Collected Metrics](#collected-metrics)
   * [Examples](#examples)
@@ -115,7 +115,7 @@ You can also download prebuilt binaries for OS X and Linux (64-bit) at the [rele
 * Set up the [snap framework](https://github.com/intelsdi-x/snap/blob/master/README.md#getting-started)
 * Ensure `$SNAP_PATH` is exported  
 `export SNAP_PATH=$GOPATH/src/github.com/intelsdi-x/snap/build`
-* Ensure `SNAP_ES_HOST` is exported
+* Ensure [snap global configuration](./examples/cfg/snap-config-sample.json) is defined 
 
 ## Documentation
 
@@ -124,317 +124,35 @@ To learn more about this plugin:
 * [snap elasticsearch examples](#examples)
 
 ### Collected Metrics
-This plugin has the ability to gather the following metrics:
+This plugin can gather Elasticsearch node and cluster level statistics. 
+The node level statistics are similar for each node except that each node has a different node id. To show the statistics for all nodes inside a cluster,  using a wildcard * to represent 
+node id in the task manifest. Otherwise, a particular node id may be specified.
 
-**Elastic Node Statistics**
+* [Node Metrics](METRICS_NODE.md)
+* [Cluster Metrics](METRICS_CLUSTER.md)
 
-This collector supports all node metrics for Elasticsearch 2.1.1. 
+In the node level, this plugin collects metrics listed the next catalog. 
 
-Metric namespace prefix: /intel/elasticsearch/node/{id}
-
-Namespace |
------------- |
-/intel/elastcisearch/node/{id}/host|
-/intel/elastcisearch/node/{id}/timestamp|
-/intel/elastcisearch/node/{id}/name|
-/intel/elastcisearch/node/{id}/indices/docs/count|
-/intel/elastcisearch/node/{id}/indices/docs/deleted|
-/intel/elastcisearch/node/{id}/indices/store/size_in_bytes|
-/intel/elastcisearch/node/{id}/indices/store/throttle_time_in_millis|
-/intel/elastcisearch/node/{id}/indices/indexing/index_total|
-/intel/elastcisearch/node/{id}/indices/indexing/index_time_in_millis|
-/intel/elastcisearch/node/{id}/indices/indexing/index_current|
-/intel/elastcisearch/node/{id}/indices/indexing/index_failed|
-/intel/elastcisearch/node/{id}/indices/indexing/delete_total|
-/intel/elastcisearch/node/{id}/indices/indexing/delete_time_in_millis|
-/intel/elastcisearch/node/{id}/indices/indexing/delete_current|
-/intel/elastcisearch/node/{id}/indices/indexing/noop_update_total|
-/intel/elastcisearch/node/{id}/indices/indexing/is_throttled|
-/intel/elastcisearch/node/{id}/indices/indexing/throttle_time_in_millis|
-/intel/elastcisearch/node/{id}/indices/get/total|
-/intel/elastcisearch/node/{id}/indices/get/timeInMillis|
-/intel/elastcisearch/node/{id}/indices/get/exists_total|
-/intel/elastcisearch/node/{id}/indices/get/exists_time_in_millis|
-/intel/elastcisearch/node/{id}/indices/get/missing_total|
-/intel/elastcisearch/node/{id}/indices/get/missing_time_in_millis|
-/intel/elastcisearch/node/{id}/indices/get/current|
-/intel/elastcisearch/node/{id}/indices/search/open_contexts|
-/intel/elastcisearch/node/{id}/indices/search/query_total|
-/intel/elastcisearch/node/{id}/indices/search/query_time_in_millis|
-/intel/elastcisearch/node/{id}/indices/search/query_current|
-/intel/elastcisearch/node/{id}/indices/search/fetch_total|
-/intel/elastcisearch/node/{id}/indices/search/fetch_time_in_millis|
-/intel/elastcisearch/node/{id}/indices/search/fetch_current|
-/intel/elastcisearch/node/{id}/indices/search/scroll_total|
-/intel/elastcisearch/node/{id}/indices/search/scroll_time_in_millis|
-/intel/elastcisearch/node/{id}/indices/search/scroll_current|
-/intel/elastcisearch/node/{id}/indices/merges/current|
-/intel/elastcisearch/node/{id}/indices/merges/current_docs|
-/intel/elastcisearch/node/{id}/indices/merges/current_size_in_bytes|
-/intel/elastcisearch/node/{id}/indices/merges/total|
-/intel/elastcisearch/node/{id}/indices/merges/total_time_in_millis|
-/intel/elastcisearch/node/{id}/indices/merges/total_docs|
-/intel/elastcisearch/node/{id}/indices/merges/total_size_in_bytes|
-/intel/elastcisearch/node/{id}/indices/merges/total_stopped_time_in_millis|
-/intel/elastcisearch/node/{id}/indices/merges/total_throttled_time_in_millis|
-/intel/elastcisearch/node/{id}/indices/merges/total_auto_throttle_in_bytes|
-/intel/elastcisearch/node/{id}/indices/refresh/total|
-/intel/elastcisearch/node/{id}/indices/refresh/total_time_in_millis|
-/intel/elastcisearch/node/{id}/indices/flush/total|
-/intel/elastcisearch/node/{id}/indices/flush/total_time_in_millis|
-/intel/elastcisearch/node/{id}/indices/warmer/current|
-/intel/elastcisearch/node/{id}/indices/warmer/total|
-/intel/elastcisearch/node/{id}/indices/warmer/total_time_in_millis|
-/intel/elastcisearch/node/{id}/indices/query_cache/memory_size_in_bytes|
-/intel/elastcisearch/node/{id}/indices/query_cache/total_count|
-/intel/elastcisearch/node/{id}/indices/query_cache/hit_count|
-/intel/elastcisearch/node/{id}/indices/query_cache/miss_count|
-/intel/elastcisearch/node/{id}/indices/query_cache/cache_size|
-/intel/elastcisearch/node/{id}/indices/query_cache/cache_count|
-/intel/elastcisearch/node/{id}/indices/query_cache/evictions|
-/intel/elastcisearch/node/{id}/indices/fielddata/memory_size_in_bytes|
-/intel/elastcisearch/node/{id}/indices/fielddata/evictions|
-/intel/elastcisearch/node/{id}/indices/percolate/total|
-/intel/elastcisearch/node/{id}/indices/percolate/time_in_millis|
-/intel/elastcisearch/node/{id}/indices/percolate/current|
-/intel/elastcisearch/node/{id}/indices/percolate/memory_size_in_bytes|
-/intel/elastcisearch/node/{id}/indices/percolate/memory_size|
-/intel/elastcisearch/node/{id}/indices/percolate/queries|
-/intel/elastcisearch/node/{id}/indices/completion/size_in_bytes|
-/intel/elastcisearch/node/{id}/indices/segments/count|
-/intel/elastcisearch/node/{id}/indices/segments/memory_in_bytes|
-/intel/elastcisearch/node/{id}/indices/segments/terms_memory_in_bytes|
-/intel/elastcisearch/node/{id}/indices/segments/stored_fields_memory_in_bytes|
-/intel/elastcisearch/node/{id}/indices/segments/term_vectors_memory_in_bytes|
-/intel/elastcisearch/node/{id}/indices/segments/norms_memory_in_bytes|
-/intel/elastcisearch/node/{id}/indices/segments/doc_values_memory_in_bytes|
-/intel/elastcisearch/node/{id}/indices/segments/index_writer_memory_in_bytes|
-/intel/elastcisearch/node/{id}/indices/segments/index_writer_max_memory_in_bytes|
-/intel/elastcisearch/node/{id}/indices/segments/version_map_memory_in_bytes|
-/intel/elastcisearch/node/{id}/indices/segments/fixed_bit_set_memory_in_bytes|
-/intel/elastcisearch/node/{id}/indices/translog/operations|
-/intel/elastcisearch/node/{id}/indices/translog/size_in_bytes|
-/intel/elastcisearch/node/{id}/indices/suggest/total|
-/intel/elastcisearch/node/{id}/indices/suggest/time_in_millis|
-/intel/elastcisearch/node/{id}/indices/suggest/current|
-/intel/elastcisearch/node/{id}/indices/request_cache/memory_size_in_bytes|
-/intel/elastcisearch/node/{id}/indices/request_cache/evictions|
-/intel/elastcisearch/node/{id}/indices/request_cache|
-/intel/elastcisearch/node/{id}/indices/request_cache/miss_count|
-/intel/elastcisearch/node/{id}/indices/recovery/current_as_source|
-/intel/elastcisearch/node/{id}/indices/recovery/current_as_target|
-/intel/elastcisearch/node/{id}/indices/recovery/throttle_time_in_millis|
-/intel/elastcisearch/node/{id}/os/timestamp|
-/intel/elastcisearch/node/{id}/os/load_average|
-/intel/elastcisearch/node/{id}/os/mem/total_in_bytes|
-/intel/elastcisearch/node/{id}/os/mem/free_in_bytes|
-/intel/elastcisearch/node/{id}/os/mem/used_in_bytes|
-/intel/elastcisearch/node/{id}/os/mem/free_percent|
-/intel/elastcisearch/node/{id}/os/mem/used_percent|
-/intel/elastcisearch/node/{id}/os/swap/total_in_bytes|
-/intel/elastcisearch/node/{id}/os/swap/free_in_bytes|
-/intel/elastcisearch/node/{id}/os/swap/used_in_bytes|
-/intel/elastcisearch/node/{id}/process/timestamp|
-/intel/elastcisearch/node/{id}/process/open_file_descriptors|
-/intel/elastcisearch/node/{id}/process/max_file_descriptors|
-/intel/elastcisearch/node/{id}/process/cpu/percent|
-/intel/elastcisearch/node/{id}/process/cpu/total_in_millis|
-/intel/elastcisearch/node/{id}/process/mem/total_virtual_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/timestamp|
-/intel/elastcisearch/node/{id}/jvm/uptime_in_millis|
-/intel/elastcisearch/node/{id}/jvm/mem/heap_used_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/mem/heap_used_percent|
-/intel/elastcisearch/node/{id}/jvm/mem/heap_committed_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/mem/heap_max_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/mem/non_heap_used_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/mem/non_heap_committed_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/mem/pools/young/used_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/mem/pools/young/max_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/mem/pools/young/peak_used_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/mem/pools/young/peak_max_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/mem/pools/Survivor/used_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/mem/pools/Survivor/max_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/mem/pools/Survivor/peak_used_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/mem/pools/Survivor/peak_max_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/mem/pools/old/used_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/mem/pools/old/max_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/mem/pools/old/peak_used_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/mem/pools/old/peak_max_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/threads/count|
-/intel/elastcisearch/node/{id}/jvm/threads/peak_count|
-/intel/elastcisearch/node/{id}/jvm/gc/collectors/young/collection_count|
-/intel/elastcisearch/node/{id}/jvm/gc/collectors/young/collection_time_in_millis|
-/intel/elastcisearch/node/{id}/jvm/gc/collectors/old/collection_count|
-/intel/elastcisearch/node/{id}/jvm/gc/collectors/old/collection_time_in_millis|
-/intel/elastcisearch/node/{id}/jvm/buffer_pools/direct/count|
-/intel/elastcisearch/node/{id}/jvm/buffer_pools/direct/used_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/buffer_pools/direct/total_capacity_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/buffer_pools/mapped/count|
-/intel/elastcisearch/node/{id}/jvm/buffer_pools/mapped/used_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/buffer_pools/mapped/total_capacity_in_bytes|
-/intel/elastcisearch/node/{id}/jvm/classes/current_loaded_count|
-/intel/elastcisearch/node/{id}/jvm/classes/total_loaded_count|
-/intel/elastcisearch/node/{id}/jvm/classes/total_unloaded_count|
-/intel/elastcisearch/node/{id}/thread_pool/bulk/threads|
-/intel/elastcisearch/node/{id}/thread_pool/bulk/queue|
-/intel/elastcisearch/node/{id}/thread_pool/bulk/active|
-/intel/elastcisearch/node/{id}/thread_pool/bulk/rejected|
-/intel/elastcisearch/node/{id}/thread_pool/bulk/largest|
-/intel/elastcisearch/node/{id}/thread_pool/bulk/completed|
-/intel/elastcisearch/node/{id}/thread_pool/fetch_shard_started/threads|
-/intel/elastcisearch/node/{id}/thread_pool/fetch_shard_started/queue|
-/intel/elastcisearch/node/{id}/thread_pool/fetch_shard_started/active|
-/intel/elastcisearch/node/{id}/thread_pool/fetch_shard_started/rejected|
-/intel/elastcisearch/node/{id}/thread_pool/fetch_shard_started/largest|
-/intel/elastcisearch/node/{id}/thread_pool/fetch_shard_started/completed|
-/intel/elastcisearch/node/{id}/thread_pool/fetch_shard_store/threads|
-/intel/elastcisearch/node/{id}/thread_pool/fetch_shard_store/queue|
-/intel/elastcisearch/node/{id}/thread_pool/fetch_shard_store/active|
-/intel/elastcisearch/node/{id}/thread_pool/fetch_shard_store/rejected|
-/intel/elastcisearch/node/{id}/thread_pool/fetch_shard_store/largest|
-/intel/elastcisearch/node/{id}/thread_pool/fetch_shard_store/completed|
-/intel/elastcisearch/node/{id}/thread_pool/flush/threads|
-/intel/elastcisearch/node/{id}/thread_pool/flush/queue|
-/intel/elastcisearch/node/{id}/thread_pool/flush/active|
-/intel/elastcisearch/node/{id}/thread_pool/flush/rejected|
-/intel/elastcisearch/node/{id}/thread_pool/flush/largest|
-/intel/elastcisearch/node/{id}/thread_pool/flush/completed|
-/intel/elastcisearch/node/{id}/thread_pool/force_merge/threads|
-/intel/elastcisearch/node/{id}/thread_pool/force_merge/queue|
-/intel/elastcisearch/node/{id}/thread_pool/force_merge/active|
-/intel/elastcisearch/node/{id}/thread_pool/force_merge/rejected|
-/intel/elastcisearch/node/{id}/thread_pool/force_merge/largest|
-/intel/elastcisearch/node/{id}/thread_pool/force_merge/completed|
-/intel/elastcisearch/node/{id}/thread_pool/generic/threads|
-/intel/elastcisearch/node/{id}/thread_pool/generic/queue|
-/intel/elastcisearch/node/{id}/thread_pool/generic/active|
-/intel/elastcisearch/node/{id}/thread_pool/generic/rejected|
-/intel/elastcisearch/node/{id}/thread_pool/generic/largest|
-/intel/elastcisearch/node/{id}/thread_pool/generic/completed|
-/intel/elastcisearch/node/{id}/thread_pool/get/threads|
-/intel/elastcisearch/node/{id}/thread_pool/get/queue|
-/intel/elastcisearch/node/{id}/thread_pool/get/active|
-/intel/elastcisearch/node/{id}/thread_pool/get/rejected|
-/intel/elastcisearch/node/{id}/thread_pool/get/largest|
-/intel/elastcisearch/node/{id}/thread_pool/get/completed|
-/intel/elastcisearch/node/{id}/thread_pool/index/threads|
-/intel/elastcisearch/node/{id}/thread_pool/index/queue|
-/intel/elastcisearch/node/{id}/thread_pool/index/active|
-/intel/elastcisearch/node/{id}/thread_pool/index/rejected|
-/intel/elastcisearch/node/{id}/thread_pool/index/largest|
-/intel/elastcisearch/node/{id}/thread_pool/index/completed|
-/intel/elastcisearch/node/{id}/thread_pool/listener/threads|
-/intel/elastcisearch/node/{id}/thread_pool/listener/queue|
-/intel/elastcisearch/node/{id}/thread_pool/listener/active|
-/intel/elastcisearch/node/{id}/thread_pool/listener/rejected|
-/intel/elastcisearch/node/{id}/thread_pool/listener/largest|
-/intel/elastcisearch/node/{id}/thread_pool/listener/completed|
-/intel/elastcisearch/node/{id}/thread_pool/management/threads|
-/intel/elastcisearch/node/{id}/thread_pool/management/queue|
-/intel/elastcisearch/node/{id}/thread_pool/management/active|
-/intel/elastcisearch/node/{id}/thread_pool/management/rejected|
-/intel/elastcisearch/node/{id}/thread_pool/management/largest|
-/intel/elastcisearch/node/{id}/thread_pool/management/completed|
-/intel/elastcisearch/node/{id}/thread_pool/percolate/threads|
-/intel/elastcisearch/node/{id}/thread_pool/percolate/queue|
-/intel/elastcisearch/node/{id}/thread_pool/percolate/active|
-/intel/elastcisearch/node/{id}/thread_pool/percolate/rejected|
-/intel/elastcisearch/node/{id}/thread_pool/percolate/largest|
-/intel/elastcisearch/node/{id}/thread_pool/percolate/completed|
-/intel/elastcisearch/node/{id}/thread_pool/refresh/threads|
-/intel/elastcisearch/node/{id}/thread_pool/refresh/queue|
-/intel/elastcisearch/node/{id}/thread_pool/refresh/active|
-/intel/elastcisearch/node/{id}/thread_pool/refresh/rejected|
-/intel/elastcisearch/node/{id}/thread_pool/refresh/largest|
-/intel/elastcisearch/node/{id}/thread_pool/refresh/completed|
-/intel/elastcisearch/node/{id}/thread_pool/search/threads|
-/intel/elastcisearch/node/{id}/thread_pool/search/queue|
-/intel/elastcisearch/node/{id}/thread_pool/search/active|
-/intel/elastcisearch/node/{id}/thread_pool/search/rejected|
-/intel/elastcisearch/node/{id}/thread_pool/search/largest|
-/intel/elastcisearch/node/{id}/thread_pool/search/completed|
-/intel/elastcisearch/node/{id}/thread_pool/snapshot/threads|
-/intel/elastcisearch/node/{id}/thread_pool/snapshot/queue|
-/intel/elastcisearch/node/{id}/thread_pool/snapshot/active|
-/intel/elastcisearch/node/{id}/thread_pool/snapshot/rejected|
-/intel/elastcisearch/node/{id}/thread_pool/snapshot/largest|
-/intel/elastcisearch/node/{id}/thread_pool/snapshot/completed|
-/intel/elastcisearch/node/{id}/thread_pool/suggest/threads|
-/intel/elastcisearch/node/{id}/thread_pool/suggest/queue|
-/intel/elastcisearch/node/{id}/thread_pool/suggest/active|
-/intel/elastcisearch/node/{id}/thread_pool/suggest/rejected|
-/intel/elastcisearch/node/{id}/thread_pool/suggest/largest|
-/intel/elastcisearch/node/{id}/thread_pool/suggest/completed|
-/intel/elastcisearch/node/{id}/thread_pool/warmer/threads|
-/intel/elastcisearch/node/{id}/thread_pool/warmer/queue|
-/intel/elastcisearch/node/{id}/thread_pool/warmer/active|
-/intel/elastcisearch/node/{id}/thread_pool/warmer/rejected|
-/intel/elastcisearch/node/{id}/thread_pool/warmer/largest|
-/intel/elastcisearch/node/{id}/thread_pool/warmer/completed|
-/intel/elastcisearch/node/{id}/fs/timestamp|
-/intel/elastcisearch/node/{id}/fs/total/total_in_bytes|
-/intel/elastcisearch/node/{id}/fs/total/free_in_bytes|
-/intel/elastcisearch/node/{id}/fs/total/available_in_bytes|
-/intel/elastcisearch/node/{id}/fs/data/transport/server_open|
-/intel/elastcisearch/node/{id}/fs/data/transport/rx_count|
-/intel/elastcisearch/node/{id}/fs/data/transport/rx_size_in_bytes|
-/intel/elastcisearch/node/{id}/fs/data/transport/tx_count|
-/intel/elastcisearch/node/{id}/fs/data/transport/tx_size_in_bytes|
-/intel/elastcisearch/node/{id}/http/current_open|
-/intel/elastcisearch/node/{id}/http/total_opened|
-/intel/elastcisearch/node/{id}/breakers/request/limit_size_in_bytes|
-/intel/elastcisearch/node/{id}/breakers/request/limit_size|
-/intel/elastcisearch/node/{id}/breakers/request/estimated_size_in_bytes|
-/intel/elastcisearch/node/{id}/breakers/request/estimated_size|
-/intel/elastcisearch/node/{id}/breakers/request/overhead|
-/intel/elastcisearch/node/{id}/breakers/request/tripped|
-/intel/elastcisearch/node/{id}/breakers/fielddata/limit_size_in_bytes|
-/intel/elastcisearch/node/{id}/breakers/fielddata/limit_size|
-/intel/elastcisearch/node/{id}/breakers/fielddata/estimated_size_in_bytes|
-/intel/elastcisearch/node/{id}/breakers/fielddata/estimated_size|
-/intel/elastcisearch/node/{id}/breakers/fielddata/overhead|
-/intel/elastcisearch/node/{id}/breakers/fielddata/tripped|
-/intel/elastcisearch/node/{id}/breakers/parent/limit_size_in_bytes|
-/intel/elastcisearch/node/{id}/breakers/parent/limit_size|
-/intel/elastcisearch/node/{id}/breakers/parent/estimated_size_in_bytes|
-/intel/elastcisearch/node/{id}/breakers/parent/estimated_size|
-/intel/elastcisearch/node/{id}/breakers/parent/overhead|
-/intel/elastcisearch/node/{id}/breakers/parent/tripped|
-/intel/elastcisearch/node/{id}/script/compilations|
-/intel/elastcisearch/node/{id}/script/cache_evictions|
-
-**Elasticsearch Cluster Statistics**
-
-This collector supports all cluster metrics for Elasticsearch 2.1.1. 
-
-Metric namespace prefix: /intel/elasticsearch/cluster
-
-Namespace |
------------- |
-/intel/elasticsearch/cluster/cluster_name|
-/intel/elasticsearch/cluster/status|
-/intel/elasticsearch/cluster/timed_out|
-/intel/elasticsearch/cluster/number_of_nodes|
-/intel/elasticsearch/cluster/number_of_data_nodes|
-/intel/elasticsearch/cluster/active_primary_shards|
-/intel/elasticsearch/cluster/active_shards|
-/intel/elasticsearch/cluster/relocating_shards|
-/intel/elasticsearch/cluster/initializing_shards|
-/intel/elasticsearch/cluster/unassigned_shards|
-/intel/elasticsearch/cluster/delayed_unassigned_shards|
-/intel/elasticsearch/cluster/number_of_pending_tasks|
-/intel/elasticsearch/cluster/number_of_in_flight_fetch|
-/intel/elasticsearch/cluster/task_max_waiting_in_queue_millis|
-/intel/elasticsearch/cluster/active_shards_percent_as_number|
+| Metric Name| Description |
+| :------------ | :------------- |
+|indices| Indices stats about size, document count, indexing and deletion times, search times, field cache size, merges and flushes|
+|os| Operating system stats, load average, mem, swap|
+|process| Process statistics, memory consumption, cpu usage, open file descriptors|
+|jvm| JVM stats, memory pool information, garbage collection, buffer pools, number of loaded/unloaded classes|
+|thread_pool| Statistics about each thread pool, including current size, queue and rejected tasks|
+|fs| File system information, data path, free disk space, read/write stats|
+|http| HTTP connection information|
+|breaks| Statistics about the field data circuit breaker|
+|script| Computing the grades stats based on a script|
 
 ### Examples
 Example running snap-plugin-collector-elasticsearch, passthru processor, and writing data to a file.
 
-![Dockerized example](https://media2.giphy.com/avatars/snapsnap/ubJywMcap0zU.gif)
+![Dockerized example](http://media.giphy.com/media/3osxY87TeMy7jGrbDW/giphy.gif)
 
 In one terminal window, open the snap daemon (in this case with logging set to 1 and trust disabled):
 ```
-$ $SNAP_PATH/bin/snapd -l 1 -t 0
+$ $SNAP_PATH/bin/snapd -l 1 -t 0 --config <path to snap global config>
 ```
 In another terminal window:
 Load snap-plugin-collector-elasticsearch
@@ -450,13 +168,12 @@ Loaded Time: Sat, 13 Feb 2016 17:05:47 PST
 See available metrics for your system (this is just part of the list)
 ```
 $SNAP_PATH/bin/snapctl metric list                                
-NAMESPACE 												 VERSIONS
-/intel/elasticsearch/cluster/active_primary_shards 							 1
-/intel/elasticsearch/cluster/active_shards 								 1
-/intel/elasticsearch/cluster/active_shards_percent_as_number 						 1
-/intel/elasticsearch/cluster/cluster_name 								 1
-/intel/elasticsearch/cluster/delayed_unassigned_shards 							 1
-/intel/elasticsearch/cluster/initializing_shards 							 1
+AMESPACE 									 VERSIONS
+/intel/elasticsearch/cluster/active_primary_shards 				 1
+/intel/elasticsearch/cluster/active_shards 					 1
+/intel/elasticsearch/cluster/active_shards_percent_as_number 			 1
+/intel/elasticsearch/cluster/cluster_name 					 1
+/intel/elasticsearch/cluster/delayed_unassigned_shards 				 1
 /intel/elasticsearch/cluster/number_of_data_nodes 							 1
 /intel/elasticsearch/cluster/number_of_in_flight_fetch 							 1
 /intel/elasticsearch/cluster/number_of_nodes 								 1
@@ -466,14 +183,9 @@ NAMESPACE 												 VERSIONS
 /intel/elasticsearch/cluster/task_max_waiting_in_queue_millis 						 1
 /intel/elasticsearch/cluster/timed_out 									 1
 /intel/elasticsearch/cluster/unassigned_shards 								 1
-/intel/elasticsearch/node/wmya7Qp9S7OWtKugsX55IQ/breakers/fielddata/estimated_size 			 1
-/intel/elasticsearch/node/wmya7Qp9S7OWtKugsX55IQ/breakers/fielddata/estimated_size_in_bytes 		 1
-/intel/elasticsearch/node/wmya7Qp9S7OWtKugsX55IQ/breakers/fielddata/limit_size 				 1
-/intel/elasticsearch/node/wmya7Qp9S7OWtKugsX55IQ/breakers/fielddata/limit_size_in_bytes 		 1
-/intel/elasticsearch/node/wmya7Qp9S7OWtKugsX55IQ/breakers/fielddata/overhead 				 1
-/intel/elasticsearch/node/wmya7Qp9S7OWtKugsX55IQ/breakers/fielddata/tripped 				 1
-/intel/elasticsearch/node/wmya7Qp9S7OWtKugsX55IQ/breakers/parent/estimated_size 			 1
-/intel/elasticsearch/node/wmya7Qp9S7OWtKugsX55IQ/breakers/parent/estimated_size_in_bytes 		 1
+/intel/elasticsearch/node/*/thread_pool/warmer/largest 				 1
+/intel/elasticsearch/node/*/thread_pool/warmer/queue 				 1
+/intel/elasticsearch/node/*/thread_pool/warmer/rejected 			 1
 ```
 
 Load passthru plugin for processing:
@@ -498,7 +210,7 @@ Signed: false
 Loaded Time: Sat, 13 Feb 2016 17:06:17 PST
 ```
 
-Create a task manifest file (e.g. `elasticsearch-file.json`. replace node id):    
+Create a task manifest file (e.g. `elasticsearch-task.json`). 
 ```json
 {
     "version": 1,
@@ -511,21 +223,16 @@ Create a task manifest file (e.g. `elasticsearch-file.json`. replace node id):
             "metrics": {
                 "/intel/elasticsearch/cluster/unassigned_shards": {},
                 "/intel/elasticsearch/cluster/active_shards": {},
-                "/intel/elasticsearch/node/wmya7Qp9S7OWtKugsX55IQ/indices/docs/count": {},
-                "/intel/elasticsearch/node/wmya7Qp9S7OWtKugsX55IQ/indices/merges/current_size_in_bytes": {},
-                "/intel/elasticsearch/node/wmya7Qp9S7OWtKugsX55IQ/indices/search/open_contexts": {},
-                "/intel/elasticsearch/node/wmya7Qp9S7OWtKugsX55IQ/jvm/mem/heap_used_in_bytes": {},
-                "/intel/elasticsearch/node/wmya7Qp9S7OWtKugsX55IQ/os/load_average": {},
-                "/intel/elasticsearch/node/wmya7Qp9S7OWtKugsX55IQ/thread_pool/fetch_shard_started/completed": {},
-                "/intel/elasticsearch/node/wmya7Qp9S7OWtKugsX55IQ/thread_pool/force_merge/threads": {},
-                "/intel/elasticsearch/node/wmya7Qp9S7OWtKugsX55IQ/transport/tx_size_in_bytes": {}
+                "/intel/elasticsearch/node/*/indices/docs/count": {},
+                "/intel/elasticsearch/node/*/indices/merges/current_size_in_bytes": {},
+                "/intel/elasticsearch/node/*/indices/search/open_contexts": {},
+                "/intel/elasticsearch/node/*/jvm/mem/heap_used_in_bytes": {},
+                "/intel/elasticsearch/node/*/os/load_average": {},
+                "/intel/elasticsearch/node/*/thread_pool/fetch_shard_started/completed": {},
+                "/intel/elasticsearch/node/*/thread_pool/force_merge/threads": {},
+                "/intel/elasticsearch/node/*/transport/tx_size_in_bytes": {}
             },
-            "config": {
-                "/intel/mock": {
-                    "password": "secret",
-                    "user": "root"
-                }
-            },
+            "config": {},
             "process": [
                 {
                     "plugin_name": "passthru",
@@ -559,33 +266,17 @@ State: Running
 
 See file output (this is just part of the file):
 ```
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ indices fielddata memory_size_in_bytes]|0|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ indices segments norms_memory_in_bytes]|61632|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ indices segments index_writer_max_memory_in_bytes]|17920000|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ indices request_cache miss_count]|0|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ thread_pool bulk largest]|0|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ thread_pool refresh completed]|0|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ thread_pool warmer queue]|0|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ indices indexing index_total]|0|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ os mem total_in_bytes]|17179869184|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ jvm timestamp]|1455417187986|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ thread_pool flush largest]|0|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ indices indexing delete_total]|0|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ jvm gc collectors young collection_time_in_millis]|4465|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ thread_pool bulk active]|0|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ indices flush total]|0|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ transport tx_size_in_bytes]|2592|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ breakers fielddata estimated_size_in_bytes]|0|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ indices docs deleted]|0|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ indices merges total_docs]|0|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ os mem free_in_bytes]|25284608|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ jvm classes total_unloaded_count]|0|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ thread_pool warmer threads]|1|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ breakers request estimated_size]|0b|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ indices warmer total_time_in_millis]|22|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ indices request_cache memory_size_in_bytes]|0|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ jvm mem pools old used_in_bytes]|24052744|127.0.0.1
-48090-05-02 00:29:45 -0800 PST|[intel elasticsearch node wmya7Qp9S7OWtKugsX55IQ thread_pool listener completed]|987|127.0.0.1
+48178-05-24 14:55:10 -0800 PST|[intel elasticsearch node F2fP3bedSsqK8S_v440enA os mem total_in_bytes]|1044631552|172.17.0.6
+48178-05-24 14:55:10 -0800 PST|[intel elasticsearch node F2fP3bedSsqK8S_v440enA timestamp]|1458196124110|172.17.0.6
+2016-03-16 23:28:53.281902987 -0700 PDT|[intel elasticsearch cluster status]|green|egu-mac01.lan
+48178-05-24 15:11:51 -0800 PST|[intel elasticsearch node F2fP3bedSsqK8S_v440enA host]|172.17.0.6|172.17.0.6
+48178-05-24 15:11:51 -0800 PST|[intel elasticsearch node F2fP3bedSsqK8S_v440enA indices merges total_throttled_time_in_millis]|0|172.17.0.6
+48178-05-24 15:11:51 -0800 PST|[intel elasticsearch node F2fP3bedSsqK8S_v440enA jvm classes total_loaded_count]|6636|172.17.0.6
+48178-05-24 15:11:51 -0800 PST|[intel elasticsearch node F2fP3bedSsqK8S_v440enA os mem total_in_bytes]|1044631552|172.17.0.6
+48178-05-24 15:11:51 -0800 PST|[intel elasticsearch node F2fP3bedSsqK8S_v440enA timestamp]|1458196125111|172.17.0.6
+2016-03-16 23:28:54.282481719 -0700 PDT|[intel elasticsearch cluster status]|green|egu-mac01.lan
+48178-05-24 15:28:31 -0800 PST|[intel elasticsearch node F2fP3bedSsqK8S_v440enA host]|172.17.0.6|172.17.0.6
+48178-05-24 15:28:31 -0800 PST|[intel elasticsearch node F2fP3bedSsqK8S_v440enA indices merges total_throttled_time_in_millis]|0|172.17.0.6
 ```
 
 ### Roadmap
@@ -613,3 +304,5 @@ There is more than one way to give back, from examples to blogs to code updates.
 ## Acknowledgements
 
 * Author: [@candysmurf](https://github.com/candysmurf/)
+* Author: [@geauxvirtual](https://github.com/geauxvirtual)
+* Author: [@jcooklin](https://github.com/jcooklin)
