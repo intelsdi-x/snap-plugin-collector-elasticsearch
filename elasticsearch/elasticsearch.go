@@ -27,13 +27,14 @@ import (
 	"github.com/intelsdi-x/snap-plugin-utilities/config"
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/control/plugin/cpolicy"
+	"github.com/intelsdi-x/snap/core"
 )
 
 const (
 	// Name of plugin
 	name = "elasticsearch"
 	// Version of plugin
-	version = 1
+	version = 2
 	// Type of plugin
 	pluginType = plugin.CollectorPluginType
 
@@ -60,19 +61,19 @@ type Elasticsearch struct {
 }
 
 // CollectMetrics returns metrics from Elasticsearch
-func (p *Elasticsearch) CollectMetrics(mts []plugin.PluginMetricType) ([]plugin.PluginMetricType, error) {
-	metrics := []plugin.PluginMetricType{}
+func (p *Elasticsearch) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricType, error) {
+	metrics := []plugin.MetricType{}
 
 	// flags to hit ES server only once
 	// during one round of the collection
 	hasNodeMetric := false
 	hasClusterMetric := false
 
-	var nodeStatsMap map[string]map[string]plugin.PluginMetricType
-	var clusterStatsMap map[string]plugin.PluginMetricType
+	var nodeStatsMap map[string]map[string]plugin.MetricType
+	var clusterStatsMap map[string]plugin.MetricType
 	var err error
 	for _, m := range mts {
-		switch m.Namespace()[2] {
+		switch m.Namespace()[2].Value {
 		case "node":
 			if !hasNodeMetric {
 				nodeStatsMap, err = getNodeMetrics(mts[0])
@@ -80,14 +81,14 @@ func (p *Elasticsearch) CollectMetrics(mts []plugin.PluginMetricType) ([]plugin.
 				hasNodeMetric = true
 			}
 
-			if m.Namespace()[3] == "*" {
+			if m.Namespace()[3].Value == "*" {
 				for i, node := range nodeStatsMap {
-					m.Namespace()[3] = i
-					metrics = append(metrics, node[strings.Join(m.Namespace(), "/")])
+					m.Namespace()[3].Value = i
+					metrics = append(metrics, node[m.Namespace().String()])
 				}
 			} else {
 				for _, x := range nodeStatsMap {
-					if value, ok := x[strings.Join(m.Namespace(), "/")]; ok {
+					if value, ok := x[m.Namespace().String()]; ok {
 						metrics = append(metrics, value)
 						break
 					}
@@ -99,7 +100,7 @@ func (p *Elasticsearch) CollectMetrics(mts []plugin.PluginMetricType) ([]plugin.
 				handleErr(err)
 				hasClusterMetric = true
 			}
-			metrics = append(metrics, clusterStatsMap[strings.Join(m.Namespace(), "/")])
+			metrics = append(metrics, clusterStatsMap[m.Namespace().String()])
 		default:
 			// filter out the invalid metrics
 			log.Println(invalidMetricType, m.Namespace())
@@ -111,7 +112,7 @@ func (p *Elasticsearch) CollectMetrics(mts []plugin.PluginMetricType) ([]plugin.
 }
 
 // GetMetricTypes returns the metric types exposed by Elasticsearch
-func (p *Elasticsearch) GetMetricTypes(pct plugin.PluginConfigType) ([]plugin.PluginMetricType, error) {
+func (p *Elasticsearch) GetMetricTypes(pct plugin.ConfigType) ([]plugin.MetricType, error) {
 	mtsType, err := getMetrics(pct)
 	handleErr(err)
 
@@ -124,7 +125,7 @@ func (p *Elasticsearch) GetConfigPolicy() (*cpolicy.ConfigPolicy, error) {
 	return c, nil
 }
 
-func getNodeMetrics(pmt interface{}) (map[string]map[string]plugin.PluginMetricType, error) {
+func getNodeMetrics(pmt interface{}) (map[string]map[string]plugin.MetricType, error) {
 	host := getServer(pmt)
 
 	esNodeMetrics := NewESNodeMetric(host, timeout)
@@ -136,7 +137,7 @@ func getNodeMetrics(pmt interface{}) (map[string]map[string]plugin.PluginMetricT
 	return mMap, nil
 }
 
-func getClusterMetrics(pmt interface{}) (map[string]plugin.PluginMetricType, error) {
+func getClusterMetrics(pmt interface{}) (map[string]plugin.MetricType, error) {
 	host := getServer(pmt)
 
 	esClusterMetrics := NewESClusterMetric(host, timeout)
@@ -147,16 +148,16 @@ func getClusterMetrics(pmt interface{}) (map[string]plugin.PluginMetricType, err
 	return metrics, nil
 }
 
-func getMetrics(pct plugin.PluginConfigType) ([]plugin.PluginMetricType, error) {
+func getMetrics(pct plugin.ConfigType) ([]plugin.MetricType, error) {
 	mMap, err := getNodeMetrics(pct)
 	handleErr(err)
 
-	mts := []plugin.PluginMetricType{}
+	mts := []plugin.MetricType{}
 	for _, n := range mMap {
 		for ns, _ := range n {
 			namespace := strings.Split(ns, "/")
 			namespace[3] = "*"
-			mts = append(mts, plugin.PluginMetricType{Namespace_: namespace})
+			mts = append(mts, plugin.MetricType{Namespace_: core.NewNamespace(namespace...)})
 		}
 		break
 	}
@@ -165,7 +166,7 @@ func getMetrics(pct plugin.PluginConfigType) ([]plugin.PluginMetricType, error) 
 	handleErr(err)
 
 	for _, m := range metrics {
-		mts = append(mts, plugin.PluginMetricType{Namespace_: m.Namespace()})
+		mts = append(mts, plugin.MetricType{Namespace_: m.Namespace()})
 	}
 
 	return mts, nil
@@ -182,7 +183,7 @@ func handleErr(e error) {
 }
 
 func getServer(cfg interface{}) string {
-	items, err := config.GetConfigItems(cfg, []string{esHost, esPort})
+	items, err := config.GetConfigItems(cfg, esHost, esPort)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
