@@ -31,7 +31,7 @@ import (
 )
 
 var (
-	mtsMap     = map[string]map[string]plugin.PluginMetricType{}
+	mtsMap     = map[string]map[string]plugin.MetricType{}
 	treeMap    = map[string]int{}
 	fieldCount int
 
@@ -62,7 +62,7 @@ func NewESNodeMetric(url string, timeout time.Duration) ESMetric {
 
 // GetNodeData returns an array of elasticsearch node metrics.
 // All metrics of all nodes within the same cluster will be returned.
-func (esm *ESMetric) GetNodeData() (map[string]map[string]plugin.PluginMetricType, error) {
+func (esm *ESMetric) GetNodeData() (map[string]map[string]plugin.MetricType, error) {
 	resp, err := esm.client.httpClient.Get(esm.client.GetUrl())
 	if err != nil {
 		esLog.WithFields(log.Fields{
@@ -171,18 +171,12 @@ func (esm *ESMetric) parseData(obj reflect.Value, nsStack *stack) error {
 }
 
 func (esm *ESMetric) setESNodeMetrics() {
-	mts := map[string]plugin.PluginMetricType{}
+	mts := map[string]plugin.MetricType{}
 	for n, m := range esm.dataMap {
-		dpt := plugin.PluginMetricType{
-			Namespace_: strings.Split(n, "/"),
+		dpt := plugin.MetricType{
+			Namespace_: core.NewNamespace(strings.Split(n, "/")...),
 			Data_:      m,
-			Source_:    esm.host,
-			Labels_: []core.Label{
-				{
-					Index: 3,
-					Name:  esm.id,
-				},
-			},
+			Tags_:      map[string]string{HOST: esm.host},
 			Timestamp_: time.Unix(esm.timestamp, 0),
 		}
 		mts[n] = dpt

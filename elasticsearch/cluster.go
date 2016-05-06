@@ -27,15 +27,18 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/intelsdi-x/snap/control/plugin"
+	"github.com/intelsdi-x/snap/core"
 )
 
 const (
 	clusterEndPoint = "/_cluster/health"
 	clusterNsPrefix = "intel/elasticsearch/cluster"
+	HOST            = "host"
+	FROM            = "from"
 )
 
 var (
-	namespaces = []plugin.PluginMetricType{}
+	namespaces = []plugin.MetricType{}
 )
 
 type cluster struct {
@@ -65,8 +68,8 @@ func NewESClusterMetric(url string, timeout time.Duration) ESMetric {
 
 // GetClusterData collects the ES cluster metrics. Otherwise,
 // an error is returned.
-func (esm *ESMetric) GetClusterData() (map[string]plugin.PluginMetricType, error) {
-	mts := map[string]plugin.PluginMetricType{}
+func (esm *ESMetric) GetClusterData() (map[string]plugin.MetricType, error) {
+	mts := map[string]plugin.MetricType{}
 	host, _ := os.Hostname()
 
 	resp, err := esm.client.httpClient.Get(esm.client.GetUrl())
@@ -94,11 +97,11 @@ func (esm *ESMetric) GetClusterData() (map[string]plugin.PluginMetricType, error
 		ns := strings.Split(clusterNsPrefix, "/")
 		ns = append(ns, elem.Type().Field(i).Tag.Get("json"))
 
-		mts[strings.Join(ns, "/")] = plugin.PluginMetricType{
-			Namespace_: ns,
+		mts[strings.Join(ns, "/")] = plugin.MetricType{
+			Namespace_: core.NewNamespace(ns...),
 			Data_:      elem.Field(i).Interface(),
-			Source_:    host,
 			Timestamp_: time.Now(),
+			Tags_:      map[string]string{FROM: host},
 		}
 	}
 	return mts, nil

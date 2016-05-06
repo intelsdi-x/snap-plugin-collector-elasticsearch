@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/intelsdi-x/snap/control/plugin"
+	"github.com/intelsdi-x/snap/core"
 	"github.com/intelsdi-x/snap/core/cdata"
 	"github.com/intelsdi-x/snap/core/ctypes"
 	. "github.com/smartystreets/goconvey/convey"
@@ -38,41 +39,41 @@ func TestESCollectMetrics(t *testing.T) {
 		p.GetMetricTypes(cfg)
 
 		Convey("collect metrics", func() {
-			mts := []plugin.PluginMetricType{
-				plugin.PluginMetricType{
-					Namespace_: []string{
+			mts := []plugin.MetricType{
+				plugin.MetricType{
+					Namespace_: core.NewNamespace(
 						"intel", "elasticsearch", "node", "JWSiB4YtQF64iKavAkg_fQ",
-						"jvm", "buffer_pools", "direct", "total_capacity_in_bytes"},
+						"jvm", "buffer_pools", "direct", "total_capacity_in_bytes"),
 					Config_: cfg.ConfigDataNode,
 				},
-				plugin.PluginMetricType{
-					Namespace_: []string{
+				plugin.MetricType{
+					Namespace_: core.NewNamespace(
 						"intel", "elasticsearch", "node", "JWSiB4YtQF64iKavAkg_fQ",
-						"process", "cpu", "total_in_millis"},
+						"process", "cpu", "total_in_millis"),
 					Config_: cfg.ConfigDataNode,
 				},
-				plugin.PluginMetricType{
-					Namespace_: []string{
+				plugin.MetricType{
+					Namespace_: core.NewNamespace(
 						"intel", "elasticsearch", "node", "JWSiB4YtQF64iKavAkg_fQ",
-						"jvm", "mem", "heap_max_in_bytes"},
+						"jvm", "mem", "heap_max_in_bytes"),
 					Config_: cfg.ConfigDataNode,
 				},
-				plugin.PluginMetricType{
-					Namespace_: []string{
-						"intel", "elasticsearch", "node", "JWSiB4YtQF64iKavAkg_fQ",
-						"os", "mem", "free_percent"},
-					Config_: cfg.ConfigDataNode,
-				},
-				plugin.PluginMetricType{
-					Namespace_: []string{
+				plugin.MetricType{
+					Namespace_: core.NewNamespace(
 						"intel", "elasticsearch", "node", "*",
-						"thread_pool", "management", "completed"},
+						"os", "mem", "free_percent"),
 					Config_: cfg.ConfigDataNode,
 				},
-				plugin.PluginMetricType{
-					Namespace_: []string{
+				plugin.MetricType{
+					Namespace_: core.NewNamespace(
+						"intel", "elasticsearch", "node", "*",
+						"thread_pool", "management", "completed"),
+					Config_: cfg.ConfigDataNode,
+				},
+				plugin.MetricType{
+					Namespace_: core.NewNamespace(
 						"intel", "elasticsearch", "cluster",
-						"status"},
+						"status"),
 					Config_: cfg.ConfigDataNode,
 				},
 			}
@@ -83,9 +84,9 @@ func TestESCollectMetrics(t *testing.T) {
 	})
 }
 
-func setupCfg(server string, port int) plugin.PluginConfigType {
+func setupCfg(server string, port int) plugin.ConfigType {
 	node := cdata.NewNode()
 	node.AddItem("server", ctypes.ConfigValueStr{Value: server})
 	node.AddItem("port", ctypes.ConfigValueInt{Value: port})
-	return plugin.PluginConfigType{ConfigDataNode: node}
+	return plugin.ConfigType{ConfigDataNode: node}
 }
