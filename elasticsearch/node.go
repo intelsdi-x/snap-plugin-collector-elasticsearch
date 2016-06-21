@@ -379,9 +379,9 @@ type data struct {
 
 type transport struct {
 	ServerOpen    int32 `json:"server_open"`
-	RxCount       int32 `json:"rx_count"`
-	RxSizeInBytes int32 `json:"rx_size_in_bytes"`
-	TxCount       int32 `json:"tx_count"`
+	RxCount       int64 `json:"rx_count"`
+	RxSizeInBytes int64 `json:"rx_size_in_bytes"`
+	TxCount       int64 `json:"tx_count"`
 	TxSizeInBytes int64 `json:"tx_size_in_bytes"`
 }
 
