@@ -84,11 +84,11 @@ func (p *Elasticsearch) CollectMetrics(mts []plugin.MetricType) ([]plugin.Metric
 			if m.Namespace()[3].Value == "*" {
 				for i, node := range nodeStatsMap {
 					m.Namespace()[3].Value = i
-					metrics = append(metrics, node[m.Namespace().String()])
+					metrics = append(metrics, node[strings.TrimLeft(m.Namespace().String(), "/")])
 				}
 			} else {
 				for _, x := range nodeStatsMap {
-					if value, ok := x[m.Namespace().String()]; ok {
+					if value, ok := x[strings.TrimLeft(m.Namespace().String(), "/")]; ok {
 						metrics = append(metrics, value)
 						break
 					}
@@ -100,14 +100,13 @@ func (p *Elasticsearch) CollectMetrics(mts []plugin.MetricType) ([]plugin.Metric
 				handleErr(err)
 				hasClusterMetric = true
 			}
-			metrics = append(metrics, clusterStatsMap[m.Namespace().String()])
+			metrics = append(metrics, clusterStatsMap[strings.TrimLeft(m.Namespace().String(), "/")])
 		default:
 			// filter out the invalid metrics
 			log.Println(invalidMetricType, m.Namespace())
 		}
 
 	}
-
 	return metrics, nil
 }
 
