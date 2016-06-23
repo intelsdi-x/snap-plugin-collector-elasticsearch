@@ -45,6 +45,7 @@ type esData struct {
 	Nodes       map[string]*node `json:"nodes"`
 }
 
+// ESMetric defines the metric needed data
 type ESMetric struct {
 	client    *HTTPClient
 	host      string
@@ -92,6 +93,7 @@ func (esm *ESMetric) GetNodeData() (map[string]map[string]plugin.MetricType, err
 		prefix := fmt.Sprintf(nodeNsPrefix, id)
 
 		// pushes the node namespace onto the stack
+		nsStack.Clear()
 		nsStack.Push(prefix)
 
 		// stores a map entry of the node namespace along with the number of fields
@@ -106,7 +108,6 @@ func (esm *ESMetric) GetNodeData() (map[string]map[string]plugin.MetricType, err
 		err = esm.parseData(reflect.ValueOf(node), nsStack)
 		esm.setESNodeMetrics()
 	}
-
 	return mtsMap, err
 }
 
@@ -123,31 +124,33 @@ func (esm *ESMetric) parseData(obj reflect.Value, nsStack *stack) error {
 
 		cleanStack(nsStack)
 	case reflect.Ptr:
-		typ := obj.Elem()
+		if !obj.IsNil() {
+			typ := obj.Elem()
 
-		for i := 0; i < typ.NumField(); i++ {
-			subty := reflect.Indirect(obj).Type().Field(i).Type.Kind()
-			tag := reflect.Indirect(obj).Type().Field(i).Tag.Get("json")
-			ty := reflect.Indirect(obj).Type().Field(i).Type
-			if ty.Kind() == reflect.Ptr {
-				ty = ty.Elem()
-			}
+			for i := 0; i < typ.NumField(); i++ {
+				subty := reflect.Indirect(obj).Type().Field(i).Type.Kind()
+				tag := reflect.Indirect(obj).Type().Field(i).Tag.Get("json")
+				ty := reflect.Indirect(obj).Type().Field(i).Type
+				if ty.Kind() == reflect.Ptr {
+					ty = ty.Elem()
+				}
 
-			if subty == reflect.Ptr {
-				fieldCount = ty.NumField()
-			} else {
-				fieldCount = 1
-			}
-			nsStack.Push(tag)
-			treeMap[tag] = fieldCount
+				if subty == reflect.Ptr {
+					fieldCount = ty.NumField()
+				} else {
+					fieldCount = 1
+				}
+				nsStack.Push(tag)
+				treeMap[tag] = fieldCount
 
-			err := esm.parseData(typ.Field(i), nsStack)
-			if err != nil {
-				esLog.WithFields(log.Fields{
-					"_block": "parse-data-recursively",
-					"error":  err,
-				}).Error("parse data error")
-				return err
+				err := esm.parseData(typ.Field(i), nsStack)
+				if err != nil {
+					esLog.WithFields(log.Fields{
+						"_block": "parse-data-recursively",
+						"error":  err,
+					}).Error("parse data error")
+					return err
+				}
 			}
 		}
 	case reflect.Slice:
