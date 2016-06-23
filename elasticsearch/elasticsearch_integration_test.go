@@ -70,16 +70,32 @@ func TestESCollectMetrics(t *testing.T) {
 						"thread_pool", "management", "completed"),
 					Config_: cfg.ConfigDataNode,
 				},
+			}
+			metrics, err := p.CollectMetrics(mts)
+			So(err, ShouldBeNil)
+			So(metrics, ShouldNotBeEmpty)
+		})
+
+		Convey("collect cluster metrics", func() {
+			mts := []plugin.MetricType{
 				plugin.MetricType{
 					Namespace_: core.NewNamespace(
 						"intel", "elasticsearch", "cluster",
 						"status"),
 					Config_: cfg.ConfigDataNode,
 				},
+				plugin.MetricType{
+					Namespace_: core.NewNamespace(
+						"intel", "elasticsearch", "cluster",
+						"number_of_nodes"),
+					Config_: cfg.ConfigDataNode,
+				},
 			}
 			metrics, err := p.CollectMetrics(mts)
 			So(err, ShouldBeNil)
-			So(metrics, ShouldNotBeNil)
+			So(metrics, ShouldNotBeEmpty)
+			So(metrics[0].Data(), ShouldNotBeNil)
+			So(metrics[1].Data(), ShouldBeGreaterThan, 0)
 		})
 	})
 }
