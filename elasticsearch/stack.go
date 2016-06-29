@@ -59,3 +59,7 @@ func (s *stack) Peek() (string, error) {
 func (s *stack) All() []string {
 	return s.value
 }
+
+func (s *stack) Clear() {
+	s.value = []string{}
+}

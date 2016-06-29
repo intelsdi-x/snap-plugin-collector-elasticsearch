@@ -34,7 +34,7 @@ const (
 	// Name of plugin
 	name = "elasticsearch"
 	// Version of plugin
-	version = 2
+	version = 3
 	// Type of plugin
 	pluginType = plugin.CollectorPluginType
 
@@ -84,12 +84,17 @@ func (p *Elasticsearch) CollectMetrics(mts []plugin.MetricType) ([]plugin.Metric
 			if m.Namespace()[3].Value == "*" {
 				for i, node := range nodeStatsMap {
 					m.Namespace()[3].Value = i
-					metrics = append(metrics, node[strings.TrimLeft(m.Namespace().String(), "/")])
+					dpt := node[strings.TrimLeft(m.Namespace().String(), "/")]
+					if dpt.Namespace().String() != "/" {
+						metrics = append(metrics, dpt)
+						break
+					}
 				}
 			} else {
-				for _, x := range nodeStatsMap {
-					if value, ok := x[strings.TrimLeft(m.Namespace().String(), "/")]; ok {
-						metrics = append(metrics, value)
+				for _, node := range nodeStatsMap {
+					dpt := node[strings.TrimLeft(m.Namespace().String(), "/")]
+					if dpt.Namespace().String() != "/" {
+						metrics = append(metrics, dpt)
 						break
 					}
 				}
