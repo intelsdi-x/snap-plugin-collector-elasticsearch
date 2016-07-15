@@ -180,7 +180,7 @@ func (esm *ESMetric) setESNodeMetrics() {
 			Namespace_: core.NewNamespace(strings.Split(n, "/")...),
 			Data_:      m,
 			Tags_:      map[string]string{HOST: esm.host},
-			Timestamp_: time.Unix(esm.timestamp, 0),
+			Timestamp_: time.Now(),
 		}
 		mts[n] = dpt
 	}
