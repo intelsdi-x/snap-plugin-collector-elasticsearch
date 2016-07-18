@@ -158,10 +158,13 @@ func getMetrics(pct plugin.ConfigType) ([]plugin.MetricType, error) {
 
 	mts := []plugin.MetricType{}
 	for _, n := range mMap {
-		for ns, _ := range n {
+		for ns := range n {
 			namespace := strings.Split(ns, "/")
 			namespace[3] = "*"
-			mts = append(mts, plugin.MetricType{Namespace_: core.NewNamespace(namespace...)})
+			nss := core.NewNamespace(namespace...)
+			nss[3].Name = "host ID"
+			nss[3].Description = "ID of ES host"
+			mts = append(mts, plugin.MetricType{Namespace_: nss})
 		}
 		break
 	}
