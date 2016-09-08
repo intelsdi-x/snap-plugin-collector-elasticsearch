@@ -1,65 +1,69 @@
-#!/bin/bash -e
-# The script does automatic checking on a Go package and its sub-packages, including:
-# 1. gofmt         (http://golang.org/cmd/gofmt/)
-# 2. goimports     (https://github.com/bradfitz/goimports)
-# 3. golint        (https://github.com/golang/lint)
-# 4. go vet        (http://golang.org/cmd/vet)
-# 5. race detector (http://blog.golang.org/race-detector)
-# 6. test coverage (http://blog.golang.org/cover)
+#!/bin/bash
 
-# Capture what test we should run
-TEST_SUITE=$1
+#http://www.apache.org/licenses/LICENSE-2.0.txt
+#
+#
+#Copyright 2015 Intel Corporation
+#
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
 
-if [[ $TEST_SUITE == "unit" ]]; then
-	go get github.com/axw/gocov/gocov
-	go get github.com/mattn/goveralls
-	go get -u github.com/golang/lint/golint
-	go get golang.org/x/tools/cmd/goimports
-	go get github.com/smartystreets/goconvey/convey
-	go get golang.org/x/tools/cmd/cover
-	
-	COVERALLS_TOKEN=t47LG6BQsfLwb9WxB56hXUezvwpED6D11
-	TEST_DIRS="main.go elasticsearch/"
-	VET_DIRS=". ./elasticsearch/..."
+# Support travis.ci environment matrix:
+TEST_TYPE="${TEST_TYPE:-$1}"
 
-	set -e
+UNIT_TEST="${UNIT_TEST:-"gofmt goimports go_test go_cover"}"
 
-	# Automatic checks
-	echo "gofmt"
-	test -z "$(gofmt -l -d $TEST_DIRS | tee /dev/stderr)"
+set -e
+set -u
+set -o pipefail
 
-	echo "goimports"
-	test -z "$(goimports -l -d $TEST_DIRS | tee /dev/stderr)"
+__dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+__proj_dir="$(dirname "$__dir")"
 
-	# Useful but should not fail on link per: https://github.com/golang/lint
-	# "The suggestions made by golint are exactly that: suggestions. Golint is not perfect,
-	# and has both false positives and false negatives. Do not treat its output as a gold standard.
-	# We will not be adding pragmas or other knobs to suppress specific warnings, so do not expect
-	# or require code to be completely "lint-free". In short, this tool is not, and will never be,
-	# trustworthy enough for its suggestions to be enforced automatically, for example as part of
-	# a build process"
-	# echo "golint"
-	# golint ./...
+SNAP_PATH="${SNAP_PATH:-"${__proj_dir}/build"}"
+export SNAP_PATH
 
-	echo "go vet"
-	go vet $VET_DIRS
-	# go test -race ./... - Lets disable for now
- 
-	# Run test coverage on each subdirectories and merge the coverage profile.
-	echo "mode: count" > profile.cov
- 
-	# Standard go tooling behavior is to ignore dirs with leading underscors
-	for dir in $(find . -maxdepth 10 -not -path './.git*' -not -path '*/_*' -not -path './examples/*' -not -path './scripts/*' -not -path './build/*' -not -path './Godeps/*' -type d);
-	do
-		if ls $dir/*.go &> /dev/null; then
-	    		go test --tags=unit -covermode=count -coverprofile=$dir/profile.tmp $dir
-	    		if [ -f $dir/profile.tmp ]
-	    		then
-	        		cat $dir/profile.tmp | tail -n +2 >> profile.cov
-	        		rm $dir/profile.tmp
-	    		fi
-		fi
-	done
- 
-	go tool cover -func profile.cov
-fi
+# shellcheck source=scripts/common.sh
+. "${__dir}/common.sh"
+
+_debug "script directory ${__dir}"
+_debug "project directory ${__proj_dir}"
+
+[[ "$TEST_TYPE" =~ ^(unit|integration)$ ]] || _error "invalid/missing TEST_TYPE (value must be 'unit', 'integration' received:${TEST_TYPE}"
+
+
+_go_path
+# If the following tools don't exist, get them
+_go_get github.com/smartystreets/goconvey
+
+# Run test coverage on each subdirectories and merge the coverage profile.
+echo "mode: count (${TEST_TYPE})" > "profile-${TEST_TYPE}.cov"
+
+export TEST_TYPE
+
+go_tests=(gofmt goimports golint go_vet go_race go_test go_cover)
+
+_debug "available unit tests: ${go_tests[*]}"
+_debug "user specified tests: ${UNIT_TEST}"
+
+((n_elements=${#go_tests[@]}, max=n_elements - 1))
+
+for ((i = 0; i <= max; i++)); do
+	if [[ "${UNIT_TEST}" =~ (^| )"${go_tests[i]}"( |$) ]]; then
+		_info "running ${go_tests[i]}"
+		_"${go_tests[i]}"
+	else
+		_debug "skipping ${go_tests[i]}"
+	fi
+done
+
+_info "test complete: ${TEST_TYPE}"

@@ -48,7 +48,7 @@ In order to use this plugin you need the Elasticsearch cluster that you can coll
 
 * [snap](http://github.com/intelsdi-x/snap)
 * Elasticsearch node/cluster
-* [golang 1.5+](https://golang.org/dl/)
+* [golang 1.6+](https://golang.org/dl/)
 
 ### Operating systems
 All OSs currently supported by snap:
