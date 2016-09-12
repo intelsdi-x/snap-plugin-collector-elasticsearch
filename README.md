@@ -152,7 +152,7 @@ Example running snap-plugin-collector-elasticsearch, passthru processor, and wri
 
 In one terminal window, open the snap daemon (in this case with logging set to 1 and trust disabled):
 ```
-$ $SNAP_PATH/bin/snapd -l 1 -t 0 --config <path to snap global config>
+$ $SNAP_PATH/bin/snapd -l 1 -t 0
 ```
 In another terminal window:
 Load snap-plugin-collector-elasticsearch
@@ -221,18 +221,19 @@ Create a task manifest file (e.g. `elasticsearch-task.json`).
     "workflow": {
         "collect": {
             "metrics": {
-                "/intel/elasticsearch/cluster/unassigned_shards": {},
-                "/intel/elasticsearch/cluster/active_shards": {},
-                "/intel/elasticsearch/node/*/indices/docs/count": {},
-                "/intel/elasticsearch/node/*/indices/merges/current_size_in_bytes": {},
-                "/intel/elasticsearch/node/*/indices/search/open_contexts": {},
-                "/intel/elasticsearch/node/*/jvm/mem/heap_used_in_bytes": {},
-                "/intel/elasticsearch/node/*/os/load_average": {},
-                "/intel/elasticsearch/node/*/thread_pool/fetch_shard_started/completed": {},
-                "/intel/elasticsearch/node/*/thread_pool/force_merge/threads": {},
-                "/intel/elasticsearch/node/*/transport/tx_size_in_bytes": {}
+                "/intel/elasticsearch/node/*/timestamp": {},
+		        "/intel/elasticsearch/node/*/host": {},
+                "/intel/elasticsearch/node/*/indices/merges/total_throttled_time_in_millis": {},
+                "/intel/elasticsearch/node/*/jvm/classes/total_loaded_count": {},
+                "/intel/elasticsearch/node/*/os/mem/total_in_bytes": {},
+                "/intel/elasticsearch/cluster/status": {}
             },
-            "config": {},
+            "config": {
+                "/intel/elasticsearch/node": {
+                    "server": "192.168.99.100",
+                    "port": 9200
+                }
+            },
             "process": [
                 {
                     "plugin_name": "passthru",
