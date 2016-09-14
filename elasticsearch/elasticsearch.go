@@ -19,8 +19,11 @@ limitations under the License.
 package elasticsearch
 
 import (
+	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
-	"strconv"
+	"os"
 	"strings"
 	"time"
 
@@ -52,16 +55,18 @@ func Meta() *plugin.PluginMeta {
 	return plugin.NewPluginMeta(name, version, pluginType, []string{plugin.SnapGOBContentType}, []string{plugin.SnapGOBContentType})
 }
 
-//  NewElasticsearchCollector returns a new instance of Elasticsearch struct
+// NewElasticsearchCollector returns a new instance of Elasticsearch struct
 func NewElasticsearchCollector() *Elasticsearch {
 	return &Elasticsearch{}
 }
 
+// Elasticsearch struct type
 type Elasticsearch struct {
 }
 
 // CollectMetrics returns metrics from Elasticsearch
 func (p *Elasticsearch) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricType, error) {
+	host := getServer(mts[0])
 	metrics := []plugin.MetricType{}
 
 	// flags to hit ES server only once
@@ -76,7 +81,7 @@ func (p *Elasticsearch) CollectMetrics(mts []plugin.MetricType) ([]plugin.Metric
 		switch m.Namespace()[2].Value {
 		case "node":
 			if !hasNodeMetric {
-				nodeStatsMap, err = getNodeMetrics(mts[0])
+				nodeStatsMap, err = getNodeMetrics(host)
 				handleErr(err)
 				hasNodeMetric = true
 			}
@@ -101,7 +106,7 @@ func (p *Elasticsearch) CollectMetrics(mts []plugin.MetricType) ([]plugin.Metric
 			}
 		case "cluster":
 			if !hasClusterMetric {
-				clusterStatsMap, err = getClusterMetrics(mts[0])
+				clusterStatsMap, err = getClusterMetrics(host)
 				handleErr(err)
 				hasClusterMetric = true
 			}
@@ -129,9 +134,7 @@ func (p *Elasticsearch) GetConfigPolicy() (*cpolicy.ConfigPolicy, error) {
 	return c, nil
 }
 
-func getNodeMetrics(pmt interface{}) (map[string]map[string]plugin.MetricType, error) {
-	host := getServer(pmt)
-
+func getNodeMetrics(host string) (map[string]map[string]plugin.MetricType, error) {
 	esNodeMetrics := NewESNodeMetric(host, timeout)
 	mMap, err := esNodeMetrics.GetNodeData()
 	if err != nil {
@@ -141,9 +144,7 @@ func getNodeMetrics(pmt interface{}) (map[string]map[string]plugin.MetricType, e
 	return mMap, nil
 }
 
-func getClusterMetrics(pmt interface{}) (map[string]plugin.MetricType, error) {
-	host := getServer(pmt)
-
+func getClusterMetrics(host string) (map[string]plugin.MetricType, error) {
 	esClusterMetrics := NewESClusterMetric(host, timeout)
 	metrics, err := esClusterMetrics.GetClusterData()
 	if err != nil {
@@ -153,7 +154,16 @@ func getClusterMetrics(pmt interface{}) (map[string]plugin.MetricType, error) {
 }
 
 func getMetrics(pct plugin.ConfigType) ([]plugin.MetricType, error) {
-	mMap, err := getNodeMetrics(pct)
+	mts, err := readMetricType()
+	if err != nil {
+		buildMetricTypes(pct)
+	}
+	return mts, nil
+}
+
+func buildMetricTypes(pct plugin.ConfigType) {
+	host := getServer(pct)
+	mMap, err := getNodeMetrics(host)
 	handleErr(err)
 
 	mts := []plugin.MetricType{}
@@ -169,14 +179,47 @@ func getMetrics(pct plugin.ConfigType) ([]plugin.MetricType, error) {
 		break
 	}
 
-	metrics, err := getClusterMetrics(pct)
+	metrics, err := getClusterMetrics(host)
 	handleErr(err)
 
 	for _, m := range metrics {
 		mts = append(mts, plugin.MetricType{Namespace_: m.Namespace()})
 	}
+	writeMetricTypes(mts)
+}
 
-	return mts, nil
+func readMetricType() ([]plugin.MetricType, error) {
+	data, err := Asset("data/ElasticsearchMetricType.json")
+	if err != nil {
+		return nil, err
+	}
+
+	if len(data) == 0 {
+		return nil, errors.New("cannot read the file: data/ElasticsearchMetricType.json")
+	}
+	var metricTypes []plugin.MetricType
+	err = json.Unmarshal(data, &metricTypes)
+	if err != nil {
+		return nil, err
+	}
+	return metricTypes, nil
+}
+
+func writeMetricTypes(types []plugin.MetricType) error {
+	tys, err := json.Marshal(types)
+	if err != nil {
+		return err
+	}
+
+	jsonFile, err := os.Create("data/ElasticsearchMetricType.json")
+	if err != nil {
+		return err
+	}
+	defer jsonFile.Close()
+
+	jsonFile.Write(tys)
+	jsonFile.Close()
+	return nil
 }
 
 func joinNamespace(ns []string) string {
@@ -198,5 +241,5 @@ func getServer(cfg interface{}) string {
 	server := items[esHost].(string)
 	port := items[esPort].(int)
 
-	return server + ":" + strconv.Itoa(port)
+	return fmt.Sprintf("%s:%d", server, port)
 }
