@@ -1,0 +1,20 @@
+---
+  version: 1
+  schedule:
+    type: "simple"
+    interval: "1s"
+  max-failures: 10
+  workflow: 
+    collect:
+      metrics:
+        /intel/elasticsearch/node/*/transport/rx_count: {}
+        /intel/elasticsearch/node/*/transport/tx_size_in_bytes: {}
+      config: 
+        /intel/elasticsearch/node: 
+          server: "elasticsearch"
+          port: 9200   
+      publish:
+        -
+          plugin_name: "file"
+          config:
+            file: "/tmp/snap-published-elasticsearch.log"

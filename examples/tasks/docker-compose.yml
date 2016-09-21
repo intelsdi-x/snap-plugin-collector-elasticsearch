@@ -1,0 +1,20 @@
+version: '2'
+services:
+  main:
+    container_name: runner
+    image: intelsdi/snap:alpine
+    environment:
+      - SNAP_VERSION=latest
+    volumes:
+      - ${PLUGIN_SRC}:/snap-plugin-collector-elasticsearch
+    links:
+      - elasticsearch
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:latest
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    expose:
+      - "9200" 
+      - "9300"

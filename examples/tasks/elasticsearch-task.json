@@ -14,7 +14,12 @@
                 "/intel/elasticsearch/node/*/os/mem/total_in_bytes": {},
                 "/intel/elasticsearch/cluster/status": {}
             },
-            "config": {},
+            "config": {
+                 "/intel/elasticsearch/node": {
+                    "server": "127.0.0.1",
+                    "port": 9200   
+                 }
+            },
             "process": [
                 {
                     "plugin_name": "passthru",
@@ -29,8 +34,7 @@
                     ],
                     "config": null
                 }
-            ],
-            "publish": null
+            ]
         }
     }
 }
