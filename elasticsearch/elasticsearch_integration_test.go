@@ -22,6 +22,7 @@ limitations under the License.
 package elasticsearch
 
 import (
+	"os"
 	"testing"
 
 	"github.com/intelsdi-x/snap/control/plugin"
@@ -32,7 +33,7 @@ import (
 )
 
 func TestESCollectMetrics(t *testing.T) {
-	cfg := setupCfg("192.168.99.100", 9200)
+	cfg := setupCfg(os.Getenv("SNAP_ELASTICSEARCH_HOST"), 9200)
 
 	Convey("Elasticsearch collector", t, func() {
 		p := NewElasticsearchCollector()
