@@ -89,10 +89,10 @@ func (p *Elasticsearch) CollectMetrics(mts []plugin.MetricType) ([]plugin.Metric
 			if m.Namespace()[3].Value == "*" {
 				for i, node := range nodeStatsMap {
 					m.Namespace()[3].Value = i
+					m.Namespace()[3].Name = "node " + i
 					dpt := node[strings.TrimLeft(m.Namespace().String(), "/")]
 					if dpt.Namespace().String() != "/" {
 						metrics = append(metrics, dpt)
-						break
 					}
 				}
 			} else {
@@ -100,7 +100,6 @@ func (p *Elasticsearch) CollectMetrics(mts []plugin.MetricType) ([]plugin.Metric
 					dpt := node[strings.TrimLeft(m.Namespace().String(), "/")]
 					if dpt.Namespace().String() != "/" {
 						metrics = append(metrics, dpt)
-						break
 					}
 				}
 			}
