@@ -4,7 +4,7 @@ set -e
 set -u
 set -o pipefail
 
-docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 elasticsearch
+id=$(docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 elasticsearch:2.4)
 DOCKER_HOST=${DOCKER_HOST-}
 if [[ -z "${DOCKER_HOST}" ]]; then
   SNAP_ELASTICSEARCH_HOST="127.0.0.1"
@@ -24,3 +24,6 @@ echo
 
 UNIT_TEST="go_test"
 test_unit
+
+_debug "Cleanup container ${id}"
+docker rm -f "${id}"

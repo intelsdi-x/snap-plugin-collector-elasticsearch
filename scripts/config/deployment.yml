@@ -1,43 +1,43 @@
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
-metadata: 
+metadata:
     name: elasticsearch-deployment
 spec:
     replicas: 1
-    template: 
-        metadata: 
+    template:
+        metadata:
             labels:
                 app: elasticsearch
         spec:
             containers:
             - name: elasticsearch
-              image: elasticsearch:latest
+              image: elasticsearch:2.4
               imagePullPolicy: "IfNotPresent"
               ports:
               - containerPort: 9200
               - containerPort: 9300
             - name: main
-              image: intelsdi/snap:alpine
+              image: intelsdi/snap:alpine_test
               env:
                 - name: SNAP_VERSION
                   value: "latest"
-              imagePullPolicy: "IfNotPresent"                               
+              imagePullPolicy: "IfNotPresent"
 
 ---
 apiVersion: v1
 kind: Service
-metadata:  
+metadata:
   labels:
     app: elasticsearch
   name: elasticsearch
 spec:
   ports:
-  - name: http-api  
+  - name: http-api
     port: 9200
     targetPort: 9200
     protocol: TCP
-  - name: http-web  
+  - name: http-web
     port: 9300
     targetPort: 9300
     protocol: TCP
