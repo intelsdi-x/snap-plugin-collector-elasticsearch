@@ -2,7 +2,7 @@ version: '2'
 services:
   main:
     container_name: runner
-    image: intelsdi/snap:alpine
+    image: intelsdi/snap:alpine_test
     environment:
       - SNAP_VERSION=latest
     volumes:
@@ -11,7 +11,7 @@ services:
       - elasticsearch
   elasticsearch:
     container_name: elasticsearch
-    image: elasticsearch:latest
+    image: elasticsearch:2.4
     ports:
       - "9200:9200"
       - "9300:9300"
