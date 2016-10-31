@@ -18,7 +18,7 @@ spec:
               - containerPort: 9200
               - containerPort: 9300
             - name: main
-              image: intelsdi/snap:alpine
+              image: intelsdi/snap:alpine_test
               env:
                 - name: SNAP_VERSION
                   value: "latest"
