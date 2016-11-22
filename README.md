@@ -80,6 +80,7 @@ $ http://DOCKERHOST:9200/_cluster/health?pretty
 #### To build the plugin binary:
 
 Fork https://github.com/intelsdi-x/snap-plugin-collector-elasticsearch
+
 Clone repo into `$GOPATH/src/github.com/intelsdi-x/`:
 
 ```
