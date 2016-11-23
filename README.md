@@ -135,7 +135,7 @@ Example running snap-plugin-collector-elasticsearch and writing data to a file.
 
 In one terminal window, open the snap daemon (in this case with logging set to 1 and trust disabled):
 ```
-$ snapd -l 1 -t 0
+$ snapteld -l 1 -t 0
 ```
 In another terminal window:
 
@@ -144,13 +144,13 @@ Download and load Snap plugins:
 $ wget http://snap.ci.snap-telemetry.io/plugins/snap-plugin-collector-elasticsearch/latest/linux/x86_64/snap-plugin-collector-elasticsearch
 $ wget http://snap.ci.snap-telemetry.io/plugins/snap-plugin-publisher-file/latest/linux/x86_64/snap-plugin-publisher-file
 $ chmod 755 snap-plugin-*
-$ snapctl plugin load snap-plugin-collector-elasticsearch
-$ snapctl plugin load snap-plugin-publisher-file
+$ snaptel plugin load snap-plugin-collector-elasticsearch
+$ snaptel plugin load snap-plugin-publisher-file
 ```
 
 See available metrics for your system (this is just part of the list)
 ```
-$ snapctl metric list
+$ snaptel metric list
 NAMESPACE 									 VERSIONS
 /intel/elasticsearch/cluster/active_primary_shards 				 1
 /intel/elasticsearch/cluster/active_shards 					 1
@@ -210,7 +210,7 @@ Create a task manifest file (e.g. `elasticsearch-task.json`).
 
 Create task:
 ```
-$ snapctl task create -t elaticsearch-task.json
+$ snaptel task create -t elaticsearch-task.json
 Using task manifest to create task
 Task created
 ID: 5aadafc8-a7a1-427c-892c-87e680235563
