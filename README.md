@@ -150,6 +150,7 @@ $ snaptel plugin load snap-plugin-publisher-file
 
 See available metrics for your system (this is just part of the list)
 ```
+
 $ snaptel metric list
 NAMESPACE 									 VERSIONS
 /intel/elasticsearch/cluster/active_primary_shards 				 1
