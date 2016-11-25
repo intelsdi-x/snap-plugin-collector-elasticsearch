@@ -1,29 +1,10 @@
-<!--
-http://www.apache.org/licenses/LICENSE-2.0.txt
+# Snap collector plugin - Elasticsearch
 
-
-Copyright 2016 Intel Corporation
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
--->
-
-# snap collector plugin - Elasticsearch
-
-This plugin collects Elasticsearch cluster and nodes statistics using snap telemetry framework.
+This plugin collects Elasticsearch cluster and nodes statistics using Snap telemetry framework.
 
 The intention for this plugin is to collect metrics for Elasticsearch nodes and cluster health.
 
-This plugin is used in the [snap framework] (http://github.com/intelsdi-x/snap).
+This plugin is used in the [Snap framework] (http://github.com/intelsdi-x/snap).
 
 
 1. [Getting Started](#getting-started)
@@ -46,12 +27,12 @@ In order to use this plugin you need the Elasticsearch cluster that you can coll
 
 ### System Requirements
 
-* [snap](http://github.com/intelsdi-x/snap)
+* [Snap](http://github.com/intelsdi-x/snap)
 * Elasticsearch node/cluster
 * [golang 1.6+](https://golang.org/dl/)
 
 ### Operating systems
-All OSs currently supported by snap:
+All OSs currently supported by Snap:
 * Linux/amd64
 * Darwin/amd64
 
@@ -97,31 +78,33 @@ $ http://DOCKERHOST:9200/_cluster/health?pretty
 }
 ```
 #### To build the plugin binary:
-Get the source by running a `go get` to fetch the code:
+
+Fork https://github.com/intelsdi-x/snap-plugin-collector-elasticsearch
+
+Clone repo into `$GOPATH/src/github.com/intelsdi-x/`:
+
 ```
-$ go get github.com/intelsdi-x/snap-plugin-collector-elasticsearch
+$ git clone https://github.com/<yourGithubID>/snap-plugin-collector-elasticsearch.git
 ```
 
-Build the plugin by running make within the cloned repo:
+Build the Snap elasticsearch plugin by running make within the cloned repo:
 ```
-$ cd $GOPATH/src/github.com/intelsdi-x/snap-plugin-collector-elasticsearch && make
+$ make
 ```
-This builds the plugin in `/build/rootfs/`
+This builds the plugin in `./build/`
 
 #### Builds
 You can also download prebuilt binaries for OS X and Linux (64-bit) at the [releases](https://github.com/intelsdi-x/snap-plugin-collector-elasticsearch/releases) page
 
 ### Configuration and Usage
-* Set up the [snap framework](https://github.com/intelsdi-x/snap/blob/master/README.md#getting-started)
-* Ensure `$SNAP_PATH` is exported  
-`export SNAP_PATH=$GOPATH/src/github.com/intelsdi-x/snap/build`
-* Ensure [snap global configuration](./examples/cfg/snap-config-sample.json) is defined 
+* Set up the [Snap framework](https://github.com/intelsdi-x/snap#getting-started)
+* Ensure [Snap global configuration](./examples/cfg/snap-config-sample.json) is defined
 
 ## Documentation
 
 To learn more about this plugin:
 
-* [snap elasticsearch examples](#examples)
+* [Snap elasticsearch examples](#examples)
 
 ### Collected Metrics
 This plugin can gather Elasticsearch node and cluster level statistics. 
@@ -146,29 +129,29 @@ In the node level, this plugin collects metrics listed the next catalog.
 |script| Computing the grades stats based on a script|
 
 ### Examples
-Example running snap-plugin-collector-elasticsearch, passthru processor, and writing data to a file.
+Example running snap-plugin-collector-elasticsearch and writing data to a file.
 
 ![Dockerized example](http://media.giphy.com/media/3osxY87TeMy7jGrbDW/giphy.gif)
 
 In one terminal window, open the snap daemon (in this case with logging set to 1 and trust disabled):
 ```
-$ $SNAP_PATH/bin/snapd -l 1 -t 0
+$ snapteld -l 1 -t 0
 ```
 In another terminal window:
-Load snap-plugin-collector-elasticsearch
+
+Download and load Snap plugins:
 ```
-$ $SNAP_PATH/bin/snapctl plugin load $SNAP_PATH/plugin/snap-plugin-collector-elasticsearch
-Plugin loaded
-Name: elasticsearch
-Version: 1
-Type: collector
-Signed: false
-Loaded Time: Sat, 13 Feb 2016 17:05:47 PST
+$ wget http://snap.ci.snap-telemetry.io/plugins/snap-plugin-collector-elasticsearch/latest/linux/x86_64/snap-plugin-collector-elasticsearch
+$ wget http://snap.ci.snap-telemetry.io/plugins/snap-plugin-publisher-file/latest/linux/x86_64/snap-plugin-publisher-file
+$ chmod 755 snap-plugin-*
+$ snaptel plugin load snap-plugin-collector-elasticsearch
+$ snaptel plugin load snap-plugin-publisher-file
 ```
+
 See available metrics for your system (this is just part of the list)
 ```
-$SNAP_PATH/bin/snapctl metric list                                
-AMESPACE 									 VERSIONS
+$ snaptel metric list
+NAMESPACE 									 VERSIONS
 /intel/elasticsearch/cluster/active_primary_shards 				 1
 /intel/elasticsearch/cluster/active_shards 					 1
 /intel/elasticsearch/cluster/active_shards_percent_as_number 			 1
@@ -188,29 +171,7 @@ AMESPACE 									 VERSIONS
 /intel/elasticsearch/node/*/thread_pool/warmer/rejected 			 1
 ```
 
-Load passthru plugin for processing:
-```
-$SNAP_PATH/bin/snapctl plugin load $SNAP_PATH/plugin/snap-processor-passthru
-Plugin loaded
-Name: passthru
-Version: 1
-Type: processor
-Signed: false
-Loaded Time: Sat, 13 Feb 2016 17:06:03 PST
-```
-
-Load file plugin for publishing:
-```
-$SNAP_PATH/bin/snapctl plugin load $SNAP_PATH/plugin/snap-publisher-file  
-Plugin loaded
-Name: file
-Version: 3
-Type: publisher
-Signed: false
-Loaded Time: Sat, 13 Feb 2016 17:06:17 PST
-```
-
-Create a task manifest file (e.g. `elasticsearch-task.json`). 
+Create a task manifest file (e.g. `elasticsearch-task.json`).
 ```json
 {
     "version": 1,
@@ -234,22 +195,14 @@ Create a task manifest file (e.g. `elasticsearch-task.json`).
                     "port": 9200
                 }
             },
-            "process": [
+            "publish": [
                 {
-                    "plugin_name": "passthru",
-                    "process": null,
-                    "publish": [
-                        {                         
-                            "plugin_name": "file",
-                            "config": {
-                                "file": "/tmp/published_elasticsearch"
-                            }
-                        }
-                    ],
-                    "config": null
+                    "plugin_name": "file",
+                    "config": {
+                        "file": "/tmp/published_elasticsearch"
+                    }
                 }
-            ],
-            "publish": null
+            ]
         }
     }
 }
@@ -257,7 +210,7 @@ Create a task manifest file (e.g. `elasticsearch-task.json`).
 
 Create task:
 ```
-$SNAP_PATH/bin/snapctl task create -t ../../task/elaticsearch-task.json
+$ snaptel task create -t elaticsearch-task.json
 Using task manifest to create task
 Task created
 ID: 5aadafc8-a7a1-427c-892c-87e680235563
@@ -265,7 +218,7 @@ Name: Task-5aadafc8-a7a1-427c-892c-87e680235563
 State: Running
 ```
 
-See file output (this is just part of the file):
+This data is published to a file `/tmp/published_elasticsearch.log` per task specification:
 ```
 48178-05-24 14:55:10 -0800 PST|[intel elasticsearch node F2fP3bedSsqK8S_v440enA os mem total_in_bytes]|1044631552|172.17.0.6
 48178-05-24 14:55:10 -0800 PST|[intel elasticsearch node F2fP3bedSsqK8S_v440enA timestamp]|1458196124110|172.17.0.6
@@ -288,7 +241,7 @@ If you have a feature request, please add it as an [issue](https://github.com/in
 and/or submit a [pull request](https://github.com/intelsdi-x/snap-plugin-collector-elasticsearch/pulls).
 
 ## Community Support
-This repository is one of **many** plugins in the **snap**, a powerful telemetry agent framework. See the full project at 
+This repository is one of **many** plugins in the **Snap**, a powerful telemetry agent framework. See the full project at
 http://github.com/intelsdi-x/snap. To reach out to other users, head to the [main framework](https://github.com/intelsdi-x/snap#community-support).
 
 
@@ -299,7 +252,7 @@ There is more than one way to give back, from examples to blogs to code updates.
 
 ## License
 
-[snap](http://github.com/intelsdi-x/snap), along with this plugin, is an Open Source software released under the Apache 2.0 [License](LICENSE).
+[Snap](http://github.com/intelsdi-x/snap), along with this plugin, is an Open Source software released under the Apache 2.0 [License](LICENSE).
 
 
 ## Acknowledgements
