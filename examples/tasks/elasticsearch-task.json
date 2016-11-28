@@ -16,7 +16,7 @@
             },
             "config": {
                  "/intel/elasticsearch/node": {
-                    "server": "127.0.0.1",
+                    "server": "elasticsearch",
                     "port": 9200   
                  }
             },
