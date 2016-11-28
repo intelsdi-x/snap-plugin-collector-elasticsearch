@@ -37,7 +37,7 @@ const (
 	// Name of plugin
 	name = "elasticsearch"
 	// Version of plugin
-	version = 3
+	version = 4
 	// Type of plugin
 	pluginType = plugin.CollectorPluginType
 
