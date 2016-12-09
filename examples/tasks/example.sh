@@ -23,7 +23,7 @@ _info "Get latest plugins"
 (cd $PLUGIN_PATH && curl -sfLSO http://snap.ci.snap-telemetry.io/plugins/snap-plugin-collector-elasticsearch/latest_build/linux/x86_64/snap-plugin-collector-elasticsearch && chmod 755 snap-plugin-collector-elasticsearch)
 
 SNAP_FLAG=0
-
+sleep 10
 # this block will wait check if snaptel and snapteld are loaded before the plugins are loaded and the task is started
  for i in `seq 1 5`; do
              if [[ -f /usr/local/bin/snaptel && -f /usr/local/sbin/snapteld ]];
