@@ -19,6 +19,8 @@ sleep 10
 # begin assertions
 return_code=0
 echo -n "[task is running] "
+snaptel metric list
+snaptel task list
 task_list=$(snaptel task list | tail -1)
 if echo $task_list | grep -q Running; then
     echo "ok"
