@@ -11,7 +11,7 @@ import:
   subpackages:
   - config
 - package: github.com/intelsdi-x/snap
-  version: e3164017505aa87d70fa9248769c8b6edc13ac08
+  version: ^1.0.0
   subpackages:
   - control/plugin
   - control/plugin/cpolicy
