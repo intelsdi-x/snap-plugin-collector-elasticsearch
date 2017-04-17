@@ -2,10 +2,10 @@
 sudo: true
 language: go
 go:
-- 1.6.3
-- 1.7.3
+- 1.7.x
+- 1.8.x
 services:
-  - docker
+- docker
 env:
   global:
   - ORG_PATH=/home/travis/gopath/src/github.com/intelsdi-x
@@ -13,10 +13,10 @@ env:
   matrix:
   - TEST_TYPE=small
   - TEST_TYPE=medium
-  - TEST_TYPE=build
+  - TEST_TYPE: build
 matrix:
   exclude:
-  - go: 1.6.3
+  - go: 1.7.x
     env: TEST_TYPE=build
 before_install:
 - "[[ -d $SNAP_PLUGIN_SOURCE ]] || mkdir -p $ORG_PATH && ln -s $TRAVIS_BUILD_DIR $SNAP_PLUGIN_SOURCE"
@@ -33,9 +33,8 @@ before_deploy:
 - "./scripts/pre_deploy.sh"
 deploy:
 - provider: s3
-  access_key_id: AKIAINMB43VSSPFZISAA
-  secret_access_key:
-    secure: m3CvvOZm2hUPSiWg7PKnJ+3Vm7Zg5g07KIjoB4hsYUv8FMFjnXlLTK3oYKTd4VcjdCgD6nMyQ9Propo+Tat4cbo9gnxQbk4gozD0ZeviAkxKG8OK3hjKlyqtzP9B+Yn1rHinpJBK1yOTj7CfFXpOfjfJHCeYfOQRsQi9wthW/w5fNc9KhjEMTcARa9Y1h5yWPExBVHvjV29GTmowxVIg8UTM3pD7GcaKv5f9mflIQq2Q9spmVn/Ary9y3vNS9VR06ypp/3pMH/6DzZfHNfv5wuXabjDj/q4SfCtsMmJiGT8FSYejdLDiG9cpQRr1+7YJsYS1UKx9OoaNhqvXX5el7Iqu84gBV8vor+V+VML0dR9KEcyxU57CTwBhkLghTtdLoy4UZSOL9IWDIIJNq5BBeXC0FYvyq3FdrFQT3xVqROpIMAeis7hpugr9M4WmtOIEW39IWUnsL2lgz2PGtzd/FKenlQ/LgZvrLJmLF/CZivqWAYDhAuV9w8nudGxVDihKD53JCR0yhuzZz8/kIr1JIN1kiIXq7Wx51hUpKSmhBTDmnPs2bu0at1BwL9khZgZuGbwUnuiqSIErqjXpOOxdyHvupoy/Y3lDOs11fCgoypQidwgCqNe4kK+LIuGmHpGHSvmFCcmXhSa/Qzu/+QIxCbIFH7jF6S11o0kteRixXVM=
+  access_key_id: $AWS_ACCESS_KEY_ID
+  secret_access_key: $AWS_SECRET_ACCESS_KEY
   bucket: snap.ci.snap-telemetry.io
   region: us-west-2
   skip_cleanup: true
@@ -45,11 +44,10 @@ deploy:
   on:
     repo: intelsdi-x/snap-plugin-collector-elasticsearch
     branch: master
-    condition: $TEST_TYPE = "build" && $TRAVIS_GO_VERSION = "1.7.3"
+    condition: $TEST_TYPE = "build" && $TRAVIS_GO_VERSION =~ ^1\.8(|\.[0-9]+)$
 - provider: s3
-  access_key_id: AKIAINMB43VSSPFZISAA
-  secret_access_key:
-    secure: m3CvvOZm2hUPSiWg7PKnJ+3Vm7Zg5g07KIjoB4hsYUv8FMFjnXlLTK3oYKTd4VcjdCgD6nMyQ9Propo+Tat4cbo9gnxQbk4gozD0ZeviAkxKG8OK3hjKlyqtzP9B+Yn1rHinpJBK1yOTj7CfFXpOfjfJHCeYfOQRsQi9wthW/w5fNc9KhjEMTcARa9Y1h5yWPExBVHvjV29GTmowxVIg8UTM3pD7GcaKv5f9mflIQq2Q9spmVn/Ary9y3vNS9VR06ypp/3pMH/6DzZfHNfv5wuXabjDj/q4SfCtsMmJiGT8FSYejdLDiG9cpQRr1+7YJsYS1UKx9OoaNhqvXX5el7Iqu84gBV8vor+V+VML0dR9KEcyxU57CTwBhkLghTtdLoy4UZSOL9IWDIIJNq5BBeXC0FYvyq3FdrFQT3xVqROpIMAeis7hpugr9M4WmtOIEW39IWUnsL2lgz2PGtzd/FKenlQ/LgZvrLJmLF/CZivqWAYDhAuV9w8nudGxVDihKD53JCR0yhuzZz8/kIr1JIN1kiIXq7Wx51hUpKSmhBTDmnPs2bu0at1BwL9khZgZuGbwUnuiqSIErqjXpOOxdyHvupoy/Y3lDOs11fCgoypQidwgCqNe4kK+LIuGmHpGHSvmFCcmXhSa/Qzu/+QIxCbIFH7jF6S11o0kteRixXVM=
+  access_key_id: $AWS_ACCESS_KEY_ID
+  secret_access_key: $AWS_SECRET_ACCESS_KEY
   bucket: snap.ci.snap-telemetry.io
   region: us-west-2
   skip_cleanup: true
@@ -59,10 +57,9 @@ deploy:
   on:
     repo: intelsdi-x/snap-plugin-collector-elasticsearch
     tags: true
-    condition: $TEST_TYPE = "build" && $TRAVIS_GO_VERSION = "1.7.3"
+    condition: $TEST_TYPE = "build" && $TRAVIS_GO_VERSION =~ ^1\.8(|\.[0-9]+)$
 - provider: releases
-  api_key:
-    secure: ZJzXfB8D+vsexFFJ8t4nM0i9xJr/5+2G7oR/3iGMSYG5Iv88lEJM+MN44EbvgqAuF6Go9yExiKmWsJQ9SZKAAt0cNF1QZvuYPFXcWp1go+7ZncjSovfqSEA+BPoJwzkV+4ABNEmO9Y3IiayNWbMxbh1o3YmuqH4ndzu3p3TA83UndyyHSHT+O7wU4s+p+pHe6e18HRgcUfZIoLkeyExBxA+EWdp3QkBny8GyTzhogBGClveOuCt5A6aM0VeOFQkKR33NUnM48FTlbDuqwRs8bRlWxeD0z3rmymBqm/EoeV72ap6W9wsdIQHR308UVF9VehngZSjBwMEraL+VIplO2F08k0kBtNrW2KbLh3yP67hsT9jxKBQGCSIo19VoI1wTqYEf6cJzV9VYHU1njZ2uCb1psEXRXrJP3P8r6akRf7OqyShD2RvKQrnaKFFq88m5L5JKJ0vzbLhGHkeB5UG8iXWtyFqlyOmcz1Z0d7rU9ZZiNWNfemLebjd+Q5cCk9A8u+quysBIatiw5nGUX3c3DOD9GpJTkkSa7/ORj++F2CobLDXxBDlTbuW6wIlbHA2FnRBcOWSjV7OZocT7fMFYUzycDKrp3PmbgJkMBPQC0oBTn1WHnV5Mmiq7HAsQbRRyAdOBSvbzd6Qz5I3rpJlLVmeYtB6E8t4P1GPx/JOFt3Q=
+  api_key: $GITHUB_API_KEY
   file:
     - release/snap-plugin-collector-elasticsearch_linux_x86_64
     - release/snap-plugin-collector-elasticsearch_darwin_x86_64
@@ -70,4 +67,4 @@ deploy:
   on:
     repo: intelsdi-x/snap-plugin-collector-elasticsearch
     tags: true
-    condition: $TEST_TYPE = "build" && $TRAVIS_GO_VERSION = "1.7.3"
+    condition: $TEST_TYPE = "build" && $TRAVIS_GO_VERSION =~ ^1\.8(|\.[0-9]+)$
