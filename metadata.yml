@@ -5,7 +5,5 @@ license: Apache-2.0
 description: "Collects Elasticsearch cluster and node statistics."
 badge:
   - "[![Build Status](https://travis-ci.org/intelsdi-x/snap-plugin-collector-elasticsearch.svg?branch=master)](https://travis-ci.org/intelsdi-x/snap-plugin-collector-elasticsearch)"
-  - "[![Build Status](https://ci.snap-telemetry.io/job/snap-plugin-collector-elasticsearch-large-prb-k8s/badge/icon)](https://ci.snap-telemetry.io/job/snap-plugin-collector-elasticsearch-large-prb-k8s/)"
 ci:
   - https://travis-ci.org/intelsdi-x/snap-plugin-collector-elasticsearch
-  - https://ci.snap-telemetry.io/job/snap-plugin-collector-elasticsearch-large-prb-k8s/
