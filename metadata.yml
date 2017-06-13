@@ -2,8 +2,10 @@ name: elasticsearch
 type: collector
 maintainer: core
 license: Apache-2.0
-description: "Collects Elasticsearch cluster and node statistics."
+description: "Collects Elasticsearch cluster and nodes statistics"
 badge:
   - "[![Build Status](https://travis-ci.org/intelsdi-x/snap-plugin-collector-elasticsearch.svg?branch=master)](https://travis-ci.org/intelsdi-x/snap-plugin-collector-elasticsearch)"
+  - "[![Build Status](https://ci.snap-telemetry.io/job/snap-plugin-collector-elasticsearch-ec2-periodic/badge/icon)](https://ci.snap-telemetry.io/job/snap-plugin-collector-elasticsearch-ec2-periodic/)"
 ci:
   - https://travis-ci.org/intelsdi-x/snap-plugin-collector-elasticsearch
+  - https://ci.snap-telemetry.io/job/snap-plugin-collector-elasticsearch-ec2-periodic
