@@ -1,6 +1,6 @@
 package: github.com/intelsdi-x/snap-plugin-collector-elasticsearch
 import:
-- package: github.com/Sirupsen/logrus
+- package: github.com/sirupsen/logrus
   version: f7f79f729e0fbe2fcc061db48a9ba0263f588252
 - package: github.com/gopherjs/gopherjs
   version: 4b53e1bddba0e2f734514aeb6c02db652f4c6fe8
@@ -11,7 +11,7 @@ import:
   subpackages:
   - config
 - package: github.com/intelsdi-x/snap
-  version: ^1.0.0
+  version: ^2.0.0
   subpackages:
   - control/plugin
   - control/plugin/cpolicy
